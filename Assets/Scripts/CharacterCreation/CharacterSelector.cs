@@ -7,12 +7,12 @@ using UnityEngine.UI;
 [Serializable]
 public class TraitRatings
 {
-    public int curiosity;
-    public int discipline;
-    public int drive;
-    public int empathy;
-    public int instability;
-    public int submission;
+    public float curiosity;
+    public float discipline;
+    public float drive;
+    public float empathy;
+    public float instability;
+    public float sincerity;
 }
 
 [Serializable]
@@ -48,7 +48,10 @@ public class CharacterSelector : MonoBehaviour
     [SerializeField] private TraitRowUI driveRow;
     [SerializeField] private TraitRowUI empathyRow;
     [SerializeField] private TraitRowUI instabilityRow;
-    [SerializeField] private TraitRowUI submissionRow;
+    [SerializeField] private TraitRowUI sincerityRow;
+    
+    [Header("Selection Tuning")]
+    [SerializeField] private float temperature = 4f;
 
     [Header("UI Output")]
     [SerializeField] private Image characterImage;
@@ -106,12 +109,12 @@ public class CharacterSelector : MonoBehaviour
 
         TraitRatings playerInput = new TraitRatings
         {
-            curiosity = curiosityRow.SelectedLevel,
-            discipline = disciplineRow.SelectedLevel,
-            drive = driveRow.SelectedLevel,
-            empathy = empathyRow.SelectedLevel,
-            instability = instabilityRow.SelectedLevel,
-            submission = submissionRow.SelectedLevel
+            curiosity = curiosityRow.SelectedValue,
+            discipline = disciplineRow.SelectedValue,
+            drive = driveRow.SelectedValue,
+            empathy = empathyRow.SelectedValue,
+            instability = instabilityRow.SelectedValue,
+            sincerity = sincerityRow.SelectedValue
         };
 
         CharacterDefinition selected = GetWeightedRandomCharacter(playerInput);
@@ -127,51 +130,73 @@ public class CharacterSelector : MonoBehaviour
 
     private CharacterDefinition GetWeightedRandomCharacter(TraitRatings input)
     {
-        List<int> weights = new List<int>();
-        int totalWeight = 0;
+        List<float> scores = new List<float>();
+        float maxScore = float.NegativeInfinity;
 
         foreach (CharacterDefinition character in database.characters)
         {
-            int score = GetMatchScore(input, character.traitRatings);
-            int weight = score * score;
+            float score = GetMatchScore(input, character.traitRatings);
+            scores.Add(score);
+
+            if (score > maxScore)
+                maxScore = score;
+        }
+
+        List<float> weights = new List<float>();
+        float totalWeight = 0f;
+
+        for (int i = 0; i < database.characters.Count; i++)
+        {
+            float shiftedScore = scores[i] - maxScore;
+            float weight = Mathf.Exp(shiftedScore / temperature);
 
             weights.Add(weight);
             totalWeight += weight;
-
-            Debug.Log($"{character.id} | score={score} | weight={weight}");
         }
 
-        if (totalWeight <= 0)
+        if (totalWeight <= 0f)
             return null;
 
-        int roll = UnityEngine.Random.Range(0, totalWeight);
-        int runningTotal = 0;
+        // Log probability for every character
+        for (int i = 0; i < database.characters.Count; i++)
+        {
+            float probability = weights[i] / totalWeight;
+            Debug.Log($"{database.characters[i].id} | score={scores[i]:F2} | probability={(probability * 100f):F2}%");
+        }
+
+        float roll = UnityEngine.Random.Range(0f, totalWeight);
+        float runningTotal = 0f;
 
         for (int i = 0; i < database.characters.Count; i++)
         {
             runningTotal += weights[i];
             if (roll < runningTotal)
             {
+                float selectedProbability = weights[i] / totalWeight;
+                Debug.Log($"Selected subject: {database.characters[i].id} | probability={(selectedProbability * 100f):F2}%");
                 return database.characters[i];
             }
         }
 
+        float fallbackProbability = weights[database.characters.Count - 1] / totalWeight;
+        Debug.Log($"Selected subject: {database.characters[database.characters.Count - 1].id} | probability={(fallbackProbability * 100f):F2}%");
+
         return database.characters[database.characters.Count - 1];
     }
 
-    private int GetMatchScore(TraitRatings input, TraitRatings archetype)
+    private float GetMatchScore(TraitRatings input, TraitRatings archetype)
     {
         return TraitCloseness(input.curiosity, archetype.curiosity)
              + TraitCloseness(input.discipline, archetype.discipline)
              + TraitCloseness(input.drive, archetype.drive)
              + TraitCloseness(input.empathy, archetype.empathy)
              + TraitCloseness(input.instability, archetype.instability)
-             + TraitCloseness(input.submission, archetype.submission);
+             + TraitCloseness(input.sincerity, archetype.sincerity);
     }
 
-    private int TraitCloseness(int playerValue, int archetypeValue)
+    private float TraitCloseness(float playerValue, float archetypeValue)
     {
-        return 5 - Mathf.Abs(playerValue - archetypeValue);
+        return 10f - Mathf.Abs(playerValue - archetypeValue);
     }
 
     private void ApplyCharacterToUI(CharacterDefinition character)

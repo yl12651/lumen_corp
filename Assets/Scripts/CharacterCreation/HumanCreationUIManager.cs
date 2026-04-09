@@ -12,11 +12,11 @@ public class HumanCreationUIManager : MonoBehaviour
     public void PrintCurrentBuild()
     {
         Debug.Log("Current Subject Build:");
-        Debug.Log("Curiosity Extract: " + curiosityRow.SelectedLevel);
-        Debug.Log("Discipline Compound: " + disciplineRow.SelectedLevel);
-        Debug.Log("Drive Serum: " + driveRow.SelectedLevel);
-        Debug.Log("Empathy Medium: " + empathyRow.SelectedLevel);
-        Debug.Log("Instability Reagent: " + instabilityRow.SelectedLevel);
-        Debug.Log("Submission Catalyst: " + submissionRow.SelectedLevel);
+        Debug.Log("Curiosity Extract: " + curiosityRow.SelectedValue);
+        Debug.Log("Discipline Compound: " + disciplineRow.SelectedValue);
+        Debug.Log("Drive Serum: " + driveRow.SelectedValue);
+        Debug.Log("Empathy Medium: " + empathyRow.SelectedValue);
+        Debug.Log("Instability Reagent: " + instabilityRow.SelectedValue);
+        Debug.Log("Submission Catalyst: " + submissionRow.SelectedValue);
     }
 }
