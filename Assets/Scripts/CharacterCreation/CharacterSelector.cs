@@ -57,12 +57,15 @@ public class CharacterSelector : MonoBehaviour
     [SerializeField] private Image characterImage;
     [SerializeField] private TMP_Text typeText;
     [SerializeField] private TMP_Text descriptionText;
+    [SerializeField] private GameObject addButton;
 
     [Header("Sprite Mapping")]
     [SerializeField] private List<CharacterSpriteEntry> characterSprites = new List<CharacterSpriteEntry>();
 
     private CharacterDatabase database;
     private Dictionary<string, Sprite> spriteLookup = new Dictionary<string, Sprite>();
+
+    private CharacterDefinition currentSubject;
 
     private void Awake()
     {
@@ -124,8 +127,9 @@ public class CharacterSelector : MonoBehaviour
             Debug.LogError("No character was selected.");
             return;
         }
-
+        
         ApplyCharacterToUI(selected);
+        currentSubject = selected;
     }
 
     private CharacterDefinition GetWeightedRandomCharacter(TraitRatings input)
@@ -219,5 +223,31 @@ public class CharacterSelector : MonoBehaviour
                 Debug.LogWarning($"No sprite mapped for character id: {character.id}");
             }
         }
+        
+        addButton.SetActive(true);
+    }
+    
+    public void ConfirmCreateSubject()
+    {
+        if (currentSubject == null)
+            return;
+        
+        CharacterDefinition subject = currentSubject;
+        
+        if (GameSession.Instance == null)
+        {
+            Debug.LogError("GameSession missing.");
+            return;
+        }
+
+        bool added = GameSession.Instance.AddSubject(subject);
+
+        if (!added)
+        {
+            Debug.Log("Bag is full. Cannot add more subjects.");
+            return;
+        }
+
+        Debug.Log($"Added subject to bag: {subject.type}");
     }
 }
