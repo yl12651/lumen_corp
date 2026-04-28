@@ -6,7 +6,7 @@ public class GameSession : MonoBehaviour
     public static GameSession Instance { get; private set; }
 
     [Header("Bag")]
-    [SerializeField] private int maxBagSlots = 6;
+    [SerializeField] private int maxBagSlots = 8;
 
     public List<CharacterDefinition> bag = new List<CharacterDefinition>();
 

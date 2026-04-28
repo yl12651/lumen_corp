@@ -1,11 +1,8 @@
 public enum InteractableId
 {
     Window,
-    Operation,
+    Barista,
     Counter,
-    Sofa1,
-    Sofa2,
+    Floor,
     Show,
-    Seat1,
-    Seat2
 }

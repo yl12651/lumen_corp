@@ -1,78 +1,116 @@
 using TMPro;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class BagSlotUI : MonoBehaviour
+public class BagSlotUI : MonoBehaviour, IPointerClickHandler, IBeginDragHandler, IDragHandler, IEndDragHandler
 {
-    [SerializeField] private Button slotButton;
+    [Header("UI References")]
     [SerializeField] private Image portraitImage;
+
+    [Header("Optional")]
     [SerializeField] private TMP_Text typeText;
 
+    private BagUIController controller;
     private int slotIndex;
-    private BagUIController owner;
-    private bool hasSubject;
+    private SlotViewType viewType;
+    private bool canDrag;
 
-    public void Setup(BagUIController controller, int index)
+    private CharacterDefinition currentSubject;
+    private Sprite currentSprite;
+
+    public void Setup(BagUIController bagUIController, int index, SlotViewType slotViewType, bool draggable)
     {
-        owner = controller;
+        controller = bagUIController;
         slotIndex = index;
-
-        if (slotButton != null)
-        {
-            slotButton.onClick.RemoveAllListeners();
-            slotButton.onClick.AddListener(OnClicked);
-        }
-    }
-
-    public void ShowEmpty()
-    {
-        hasSubject = false;
-
-        if (portraitImage != null)
-        {
-            portraitImage.sprite = null;
-            portraitImage.enabled = false;
-        }
-
-        if (typeText != null)
-        {
-            typeText.text = "";
-        }
-
-        if (slotButton != null)
-        {
-            slotButton.interactable = false;
-        }
+        viewType = slotViewType;
+        canDrag = draggable;
     }
 
     public void ShowSubject(CharacterDefinition subject, Sprite sprite)
     {
-        hasSubject = true;
+        currentSubject = subject;
+        currentSprite = sprite;
 
         if (portraitImage != null)
         {
             portraitImage.sprite = sprite;
             portraitImage.enabled = sprite != null;
             portraitImage.preserveAspect = true;
+
+            Color color = portraitImage.color;
+            color.a = sprite != null ? 1f : 0f;
+            portraitImage.color = color;
         }
 
         if (typeText != null)
-        {
-            typeText.text = subject.type;
-        }
-
-        if (slotButton != null)
-        {
-            slotButton.interactable = true;
-        }
+            typeText.text = subject != null ? subject.type : "";
     }
 
-    private void OnClicked()
+    public void ShowEmpty()
     {
-        if (!hasSubject)
+        currentSubject = null;
+        currentSprite = null;
+
+        if (portraitImage != null)
+        {
+            portraitImage.sprite = null;
+            portraitImage.enabled = true;
+
+            Color color = portraitImage.color;
+            color.a = 0f;
+            portraitImage.color = color;
+        }
+
+        if (typeText != null)
+            typeText.text = "";
+    }
+
+    public void OnPointerClick(PointerEventData eventData)
+    {
+        if (controller == null)
             return;
 
-        if (owner != null)
-            owner.OnSlotClicked(slotIndex);
+        controller.OnSlotClicked(slotIndex, viewType);
+    }
+
+    public void OnBeginDrag(PointerEventData eventData)
+    {
+        if (!canDrag)
+            return;
+
+        if (controller == null)
+            return;
+
+        if (currentSubject == null)
+            return;
+
+        if (viewType == SlotViewType.Cafe && controller.IsInventoryIndexAssigned(slotIndex))
+            return;
+
+        CharacterDragState.BeginDrag(slotIndex, currentSubject);
+
+        controller.BeginDragPreview(currentSprite);
+        controller.UpdateDragPreview(eventData.position);
+    }
+
+    public void OnDrag(PointerEventData eventData)
+    {
+        if (!CharacterDragState.IsDragging)
+            return;
+
+        if (controller != null)
+            controller.UpdateDragPreview(eventData.position);
+    }
+
+    public void OnEndDrag(PointerEventData eventData)
+    {
+        if (!CharacterDragState.IsDragging)
+            return;
+
+        if (controller != null)
+            controller.EndDragPreview();
+
+        CharacterDragState.EndDrag();
     }
 }
