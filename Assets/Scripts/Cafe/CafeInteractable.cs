@@ -5,36 +5,40 @@ public class CafeInteractable : MonoBehaviour
     public InteractableId interactableId;
     public HoverPanelData panelData;
 
-    [Header("Highlight")]
-    public Renderer[] targetRenderers;
+    [Header("3D Outline Highlight")]
+    [SerializeField] private Outline objectOutline;
 
-    private MaterialPropertyBlock mpb;
-    private static readonly int EmissionColor = Shader.PropertyToID("_EmissionColor");
+    [Header("Linked UI Hover Effects")]
+    [SerializeField] private UnityEngine.UI.Outline[] linkedUIHoverEffects;
 
     private void Awake()
     {
-        if (targetRenderers == null || targetRenderers.Length == 0)
-            targetRenderers = GetComponentsInChildren<Renderer>();
+        if (objectOutline == null)
+            objectOutline = GetComponent<Outline>();
 
-        mpb = new MaterialPropertyBlock();
+        if (objectOutline == null)
+            objectOutline = GetComponentInChildren<Outline>();
+
+        if (objectOutline != null)
+            objectOutline.enabled = false;
+
+        SetLinkedUIHoverEffects(false);
     }
 
     public void SetHighlighted(bool highlighted)
     {
-        foreach (var r in targetRenderers)
+        if (objectOutline != null)
+            objectOutline.enabled = highlighted;
+
+        SetLinkedUIHoverEffects(highlighted);
+    }
+
+    private void SetLinkedUIHoverEffects(bool active)
+    {
+        foreach (UnityEngine.UI.Outline outline in linkedUIHoverEffects)
         {
-            r.GetPropertyBlock(mpb);
-
-            if (highlighted)
-            {
-                mpb.SetColor(EmissionColor, Color.white * 1.5f);
-            }
-            else
-            {
-                mpb.SetColor(EmissionColor, Color.black);
-            }
-
-            r.SetPropertyBlock(mpb);
+            if (outline != null)
+                outline.enabled = active;
         }
     }
 }

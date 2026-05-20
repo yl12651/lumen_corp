@@ -6,6 +6,10 @@ public class AssignmentDropPanel : MonoBehaviour, IDropHandler, IBeginDragHandle
 {
     [Header("Assigned UI")]
     [SerializeField] private Image assignedImage;
+    
+    [Header("Panel Identity")]
+    [SerializeField] private string panelName;
+    public string PanelName => panelName;
 
     private BagUIController controller;
 
@@ -13,6 +17,10 @@ public class AssignmentDropPanel : MonoBehaviour, IDropHandler, IBeginDragHandle
 
     private CharacterDefinition assignedSubject;
     private Sprite assignedSprite;
+    
+    public CharacterDefinition AssignedSubject => assignedSubject;
+    public Sprite AssignedSprite => assignedSprite;
+    public bool HasAssignedCharacter => AssignedInventoryIndex >= 0 && assignedSubject != null;
 
     public void Setup(BagUIController bagUIController)
     {
