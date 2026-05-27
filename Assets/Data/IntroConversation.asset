@@ -17,24 +17,24 @@ MonoBehaviour:
   defaultPortrait: {fileID: 0}
   lines:
   - speakerName: Clothos
-    portrait: {fileID: 0}
+    portrait: {fileID: 21300000, guid: 90de8a25fb68de34eb030b5fda298349, type: 3}
     text: Welcome to Lumen Corp. Before the cafe opens, we need to understand who
       will be working here.
     advanceMode: 0
     requiredSignalId: 
   - speakerName: Clothos
-    portrait: {fileID: 0}
+    portrait: {fileID: 21300000, guid: 90de8a25fb68de34eb030b5fda298349, type: 3}
     text: You will create characters by shaping their personalities with six sliders.
     advanceMode: 0
     requiredSignalId: 
   - speakerName: Clothos
-    portrait: {fileID: 0}
+    portrait: {fileID: 21300000, guid: 90de8a25fb68de34eb030b5fda298349, type: 3}
     text: After that, you will assign them to cafe positions and see how their choices
       affect the final conversation.
     advanceMode: 0
     requiredSignalId: 
   - speakerName: Clothos
-    portrait: {fileID: 0}
+    portrait: {fileID: 21300000, guid: 90de8a25fb68de34eb030b5fda298349, type: 3}
     text: Let's begin!
     advanceMode: 0
     requiredSignalId: 

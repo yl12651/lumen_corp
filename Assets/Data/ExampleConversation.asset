@@ -15,4 +15,19 @@ MonoBehaviour:
   title: 
   nextSceneName: 
   defaultPortrait: {fileID: 0}
-  lines: []
+  lines:
+  - speakerName: 
+    portrait: {fileID: 0}
+    text: 
+    advanceMode: 0
+    requiredSignalId: 
+  - speakerName: Julia
+    portrait: {fileID: 0}
+    text: Daisuki
+    advanceMode: 0
+    requiredSignalId: 
+  - speakerName: Julia
+    portrait: {fileID: 0}
+    text: Daisuki
+    advanceMode: 0
+    requiredSignalId: 
