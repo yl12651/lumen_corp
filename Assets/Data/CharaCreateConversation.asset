@@ -1,0 +1,40 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5fa92c1ac281497086f905a3a552828e, type: 3}
+  m_Name: CharaCreateConversation
+  m_EditorClassIdentifier: Assembly-CSharp::ConversationCutsceneAsset
+  title: Welcome to Lumen Corp
+  nextSceneName: CharacterCreationScene
+  defaultPortrait: {fileID: 21300000, guid: 90de8a25fb68de34eb030b5fda298349, type: 3}
+  lines:
+  - speakerName: Clothos
+    portrait: {fileID: 21300000, guid: 90de8a25fb68de34eb030b5fda298349, type: 3}
+    text: Welcome to Lumen Corp. Before the cafe opens, we need to understand who
+      will be working here.
+    advanceMode: 0
+    requiredSignalId: 
+  - speakerName: Clothos
+    portrait: {fileID: 21300000, guid: 90de8a25fb68de34eb030b5fda298349, type: 3}
+    text: You will create characters by shaping their personalities with six sliders.
+    advanceMode: 0
+    requiredSignalId: 
+  - speakerName: Clothos
+    portrait: {fileID: 21300000, guid: 90de8a25fb68de34eb030b5fda298349, type: 3}
+    text: After that, you will assign them to cafe positions and see how their choices
+      affect the final conversation.
+    advanceMode: 0
+    requiredSignalId: 
+  - speakerName: Clothos
+    portrait: {fileID: 21300000, guid: 90de8a25fb68de34eb030b5fda298349, type: 3}
+    text: Let's begin!
+    advanceMode: 1
+    requiredSignalId: Tutorial1

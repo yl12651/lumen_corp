@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Rendering;
 using UnityEngine.UI;
 
 [Serializable]
@@ -57,7 +58,7 @@ public class CharacterSelector : MonoBehaviour
     [SerializeField] private Image characterImage;
     [SerializeField] private TMP_Text typeText;
     [SerializeField] private TMP_Text descriptionText;
-    [SerializeField] private GameObject addButton;
+    [SerializeField] private GameObject resultUIPanel;
 
     [Header("Sprite Mapping")]
     [SerializeField] private List<CharacterSpriteEntry> characterSprites = new List<CharacterSpriteEntry>();
@@ -217,14 +218,13 @@ public class CharacterSelector : MonoBehaviour
             {
                 characterImage.sprite = sprite;
                 characterImage.preserveAspect = true;
+                resultUIPanel.SetActive(true);
             }
             else
             {
                 Debug.LogWarning($"No sprite mapped for character id: {character.id}");
             }
         }
-        
-        addButton.SetActive(true);
     }
     
     public void ConfirmCreateSubject()
@@ -249,5 +249,11 @@ public class CharacterSelector : MonoBehaviour
         }
 
         Debug.Log($"Added subject to bag: {subject.type}");
+        resultUIPanel.SetActive(false);
+    }
+
+    public void HideResult()
+    {
+        resultUIPanel.SetActive(false);
     }
 }
