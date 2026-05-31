@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ConversationCutsceneAsset
   title: Welcome to Lumen Corp
   nextSceneName: CharacterCreationScene
-  defaultPortrait: {fileID: 0}
+  defaultPortrait: {fileID: 21300000, guid: 90de8a25fb68de34eb030b5fda298349, type: 3}
   lines:
   - speakerName: Clothos
     portrait: {fileID: 21300000, guid: 90de8a25fb68de34eb030b5fda298349, type: 3}

@@ -4100,8 +4100,8 @@ MonoBehaviour:
   squareSize: {x: 200, y: 200}
   spacing: 230
   localStartOffset: {x: 0, y: 0}
-  speed: -40
-  angleDegrees: 40
+  speed: 40
+  angleDegrees: 220
   useUnscaledTime: 1
 --- !u!1 &693216457
 GameObject:
