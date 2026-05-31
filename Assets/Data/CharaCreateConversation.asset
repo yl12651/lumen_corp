@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5fa92c1ac281497086f905a3a552828e, type: 3}
   m_Name: CharaCreateConversation
   m_EditorClassIdentifier: Assembly-CSharp::ConversationCutsceneAsset
-  title: Welcome to Lumen Corp
+  title: 
   nextSceneName: CharacterCreationScene
   defaultPortrait: {fileID: 21300000, guid: 90de8a25fb68de34eb030b5fda298349, type: 3}
   lines:

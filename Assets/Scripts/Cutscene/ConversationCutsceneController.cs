@@ -15,6 +15,7 @@ public class ConversationCutsceneController : MonoBehaviour
     [SerializeField] private Image portraitImage;
     [SerializeField] private Button advanceButton;
     [SerializeField] private GameObject continueIndicator;
+    [SerializeField] private Canvas canvasToHideWhenWaitingForSignal;
     [SerializeField] private SceneAsyncLoader sceneAsyncLoader;
 
     private int lineIndex;
@@ -43,6 +44,7 @@ public class ConversationCutsceneController : MonoBehaviour
         cutscene = newCutscene;
         lineIndex = 0;
         waitingForSignal = false;
+        SetWaitingCanvasVisible(true);
 
         if (cutscene == null || cutscene.lines == null || cutscene.lines.Count == 0)
         {
@@ -81,6 +83,7 @@ public class ConversationCutsceneController : MonoBehaviour
         }
 
         waitingForSignal = line.advanceMode == ConversationAdvanceMode.WaitForSignal;
+        SetWaitingCanvasVisible(!waitingForSignal);
 
         if (continueIndicator != null)
             continueIndicator.SetActive(!waitingForSignal);
@@ -109,6 +112,12 @@ public class ConversationCutsceneController : MonoBehaviour
 
         if (line.requiredSignalId == signalId)
             AdvanceLine();
+    }
+
+    private void SetWaitingCanvasVisible(bool isVisible)
+    {
+        if (canvasToHideWhenWaitingForSignal != null)
+            canvasToHideWhenWaitingForSignal.enabled = isVisible;
     }
 
     private void LoadNextScene()
