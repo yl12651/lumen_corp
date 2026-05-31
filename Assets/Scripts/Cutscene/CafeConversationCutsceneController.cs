@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class CafeConversationCutsceneController : MonoBehaviour
@@ -28,6 +27,7 @@ public class CafeConversationCutsceneController : MonoBehaviour
     [Header("End")]
     [SerializeField] private string endBubbleText = "The End";
     [SerializeField] private string characterCreationSceneName = "CharacterCreationScene";
+    [SerializeField] private SceneAsyncLoader sceneAsyncLoader;
 
     [Header("Visual Tuning")]
     [SerializeField] private float currentSpeakerAlpha = 1f;
@@ -341,7 +341,7 @@ public class CafeConversationCutsceneController : MonoBehaviour
     {
         if (showingEndBubble)
         {
-            SceneManager.LoadScene(characterCreationSceneName);
+            LoadSceneAsync(characterCreationSceneName);
             return;
         }
 
@@ -365,6 +365,20 @@ public class CafeConversationCutsceneController : MonoBehaviour
         Color color = image.color;
         color.a = alpha;
         image.color = color;
+    }
+
+    private void LoadSceneAsync(string sceneName)
+    {
+        if (sceneAsyncLoader == null)
+            sceneAsyncLoader = FindFirstObjectByType<SceneAsyncLoader>();
+
+        if (sceneAsyncLoader == null)
+        {
+            Debug.LogError("SceneAsyncLoader is required in the scene before loading " + sceneName + ".", this);
+            return;
+        }
+
+        sceneAsyncLoader.LoadScene(sceneName);
     }
 
     [Serializable]

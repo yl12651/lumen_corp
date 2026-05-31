@@ -1,6 +1,5 @@
 ﻿using TMPro;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class ConversationCutsceneController : MonoBehaviour
@@ -16,6 +15,7 @@ public class ConversationCutsceneController : MonoBehaviour
     [SerializeField] private Image portraitImage;
     [SerializeField] private Button advanceButton;
     [SerializeField] private GameObject continueIndicator;
+    [SerializeField] private SceneAsyncLoader sceneAsyncLoader;
 
     private int lineIndex;
     private bool waitingForSignal;
@@ -114,6 +114,20 @@ public class ConversationCutsceneController : MonoBehaviour
     private void LoadNextScene()
     {
         if (cutscene != null && !string.IsNullOrWhiteSpace(cutscene.nextSceneName))
-            SceneManager.LoadScene(cutscene.nextSceneName);
+            LoadSceneAsync(cutscene.nextSceneName);
+    }
+
+    private void LoadSceneAsync(string sceneName)
+    {
+        if (sceneAsyncLoader == null)
+            sceneAsyncLoader = FindFirstObjectByType<SceneAsyncLoader>();
+
+        if (sceneAsyncLoader == null)
+        {
+            Debug.LogError("SceneAsyncLoader is required in the scene before loading " + sceneName + ".", this);
+            return;
+        }
+
+        sceneAsyncLoader.LoadScene(sceneName);
     }
 }
