@@ -43,8 +43,8 @@ public class TutorialSliderSignalSender : MonoBehaviour
         if (cutsceneController == null || string.IsNullOrWhiteSpace(signalId))
             return;
 
-        hasSentSignal = true;
-        cutsceneController.CompleteSignal(signalId);
+        if (cutsceneController.CompleteSignal(signalId))
+            hasSentSignal = true;
     }
 
     public void ResetSignal()

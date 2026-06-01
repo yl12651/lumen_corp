@@ -63,10 +63,17 @@ public class CharacterSelector : MonoBehaviour
     [Header("Sprite Mapping")]
     [SerializeField] private List<CharacterSpriteEntry> characterSprites = new List<CharacterSpriteEntry>();
 
+    [Header("Tutorial Signals")]
+    [SerializeField] private ConversationCutsceneController cutsceneController;
+    [SerializeField] private string createSignalId = "create_triggered";
+    [SerializeField] private string addSignalId = "add_triggered";
+
     private CharacterDatabase database;
     private Dictionary<string, Sprite> spriteLookup = new Dictionary<string, Sprite>();
 
     private CharacterDefinition currentSubject;
+    private bool hasSentCreateSignal;
+    private bool hasSentAddSignal;
 
     private void Awake()
     {
@@ -131,6 +138,7 @@ public class CharacterSelector : MonoBehaviour
         
         ApplyCharacterToUI(selected);
         currentSubject = selected;
+        TutorialSignalUtility.SendTutorialSignalOnce(cutsceneController, createSignalId, ref hasSentCreateSignal);
     }
 
     private CharacterDefinition GetWeightedRandomCharacter(TraitRatings input)
@@ -250,6 +258,7 @@ public class CharacterSelector : MonoBehaviour
 
         Debug.Log($"Added subject to bag: {subject.type}");
         resultUIPanel.SetActive(false);
+        TutorialSignalUtility.SendTutorialSignalOnce(cutsceneController, addSignalId, ref hasSentAddSignal);
     }
 
     public void HideResult()

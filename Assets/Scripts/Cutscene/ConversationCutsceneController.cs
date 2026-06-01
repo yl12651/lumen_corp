@@ -110,15 +110,18 @@ public class ConversationCutsceneController : MonoBehaviour
         ShowCurrentLine();
     }
 
-    public void CompleteSignal(string signalId)
+    public bool CompleteSignal(string signalId)
     {
         if (!waitingForSignal)
-            return;
+            return false;
 
         ConversationLine line = cutscene.lines[lineIndex];
 
-        if (line.requiredSignalId == signalId)
-            AdvanceLine();
+        if (line.requiredSignalId != signalId)
+            return false;
+
+        AdvanceLine();
+        return true;
     }
 
     private void SetWaitingCanvasVisible(bool isVisible)

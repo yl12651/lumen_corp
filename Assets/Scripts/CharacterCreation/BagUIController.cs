@@ -32,6 +32,10 @@ public class BagUIController : MonoBehaviour
     [SerializeField] private Canvas rootCanvas;
     [SerializeField] private Image dragPreviewImage;
 
+    [Header("Tutorial Signals")]
+    [SerializeField] private ConversationCutsceneController cutsceneController;
+    [SerializeField] private string openBagSignalId = "bag_triggered";
+
     private Dictionary<string, Sprite> spriteLookup = new Dictionary<string, Sprite>();
 
     // Key = inventory index in GameSession.
@@ -39,6 +43,7 @@ public class BagUIController : MonoBehaviour
     private Dictionary<int, AssignmentDropPanel> assignedLookup = new Dictionary<int, AssignmentDropPanel>();
 
     private int currentDisplayIndex = -1;
+    private bool hasSentOpenBagSignal;
 
     private void Awake()
     {
@@ -101,6 +106,7 @@ public class BagUIController : MonoBehaviour
 
         RefreshBag();
         ClearInspect();
+        TutorialSignalUtility.SendTutorialSignalOnce(cutsceneController, openBagSignalId, ref hasSentOpenBagSignal);
     }
 
     public void CloseBag()

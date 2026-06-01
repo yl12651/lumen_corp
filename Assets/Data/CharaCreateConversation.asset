@@ -52,7 +52,8 @@ MonoBehaviour:
     endActions: []
   - speakerName: Clothos
     portrait: {fileID: 21300000, guid: 90de8a25fb68de34eb030b5fda298349, type: 3}
-    text: You need to first adjust blah
+    text: 'First try moving that slider! This one adjust how strongly the subject
+      is drawn to new ideas, as well as unfamiliar situations. '
     advanceMode: 1
     requiredSignalId: curiosity_slider_changed
     hideCanvasWhileWaitingForSignal: 0
@@ -70,8 +71,7 @@ MonoBehaviour:
       clearPreviousHighlights: 0
   - speakerName: Clothos
     portrait: {fileID: 21300000, guid: 90de8a25fb68de34eb030b5fda298349, type: 3}
-    text: Now tryout all other substances you want to put into that body and hit
-      that create button to welcome your first cafe employee!
+    text: Now try hitting that create button and see what we got!
     advanceMode: 0
     requiredSignalId: 
     hideCanvasWhileWaitingForSignal: 0
@@ -81,15 +81,62 @@ MonoBehaviour:
     portrait: {fileID: 21300000, guid: 90de8a25fb68de34eb030b5fda298349, type: 3}
     text: temp
     advanceMode: 1
-    requiredSignalId: create_changed
+    requiredSignalId: create_triggered
+    hideCanvasWhileWaitingForSignal: 1
+    startActions:
+    - actionType: 1
+      targetId: create_button
+      signalId: 
+      duration: 0.25
+      clearPreviousHighlights: 1
+    endActions:
+    - actionType: 3
+      targetId: 
+      signalId: 
+      duration: 0
+      clearPreviousHighlights: 0
+  - speakerName: Clothos
+    portrait: {fileID: 21300000, guid: 90de8a25fb68de34eb030b5fda298349, type: 3}
+    text: "Do they look cute to you? Please let it be yes ( \u2022\u0301\u032F ^
+      \u2022\u0300\u032F) Add them to your inventory or click recreate to try some
+      adjustments!"
+    advanceMode: 0
+    requiredSignalId: 
     hideCanvasWhileWaitingForSignal: 1
     startActions: []
     endActions: []
   - speakerName: Clothos
     portrait: {fileID: 21300000, guid: 90de8a25fb68de34eb030b5fda298349, type: 3}
+    text: 
+    advanceMode: 1
+    requiredSignalId: add_triggered
+    hideCanvasWhileWaitingForSignal: 1
+    startActions: []
+    endActions: []
+  - speakerName: Clothos
+    portrait: {fileID: 21300000, guid: 90de8a25fb68de34eb030b5fda298349, type: 3}
+    text: You just added your first character! ICYMI, you can view all you've got
+      here.
+    advanceMode: 1
+    requiredSignalId: bag_triggered
+    hideCanvasWhileWaitingForSignal: 0
+    startActions:
+    - actionType: 1
+      targetId: bag_button
+      signalId: 
+      duration: 0.25
+      clearPreviousHighlights: 1
+    endActions:
+    - actionType: 3
+      targetId: 
+      signalId: 
+      duration: 0
+      clearPreviousHighlights: 0
+  - speakerName: Clothos
+    portrait: {fileID: 21300000, guid: 90de8a25fb68de34eb030b5fda298349, type: 3}
     text: EOF
     advanceMode: 1
-    requiredSignalId: create_changed
+    requiredSignalId: EOF
     hideCanvasWhileWaitingForSignal: 1
     startActions: []
     endActions: []
