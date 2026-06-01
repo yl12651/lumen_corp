@@ -990,10 +990,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TutorialHighlightController
   overlayRoot: {fileID: 205946431}
+  dimPanelRoot: {fileID: 0}
+  dimCanvasGroup: {fileID: 0}
   highlightFrame: {fileID: 817634562}
   highlightCanvasGroup: {fileID: 817634565}
   highlightImage: {fileID: 817634563}
   padding: {x: 6, y: 6}
+  dimColor: {r: 0, g: 0, b: 0, a: 0.72}
   fadeDuration: 0.2
   pulseScale: 1.06
   pulseDuration: 0.45
@@ -5568,7 +5571,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 817634561}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
