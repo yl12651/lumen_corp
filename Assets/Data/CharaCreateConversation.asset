@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: CharaCreateConversation
   m_EditorClassIdentifier: Assembly-CSharp::ConversationCutsceneAsset
   title: 
-  nextSceneName: CharacterCreationScene
+  nextSceneName: CafeScene
   defaultPortrait: {fileID: 21300000, guid: 90de8a25fb68de34eb030b5fda298349, type: 3}
   lines:
   - speakerName: Clothos
@@ -22,19 +22,74 @@ MonoBehaviour:
       will be working here.
     advanceMode: 0
     requiredSignalId: 
+    hideCanvasWhileWaitingForSignal: 0
+    startActions: []
+    endActions: []
   - speakerName: Clothos
     portrait: {fileID: 21300000, guid: 90de8a25fb68de34eb030b5fda298349, type: 3}
     text: You will create characters by shaping their personalities with six sliders.
     advanceMode: 0
     requiredSignalId: 
+    hideCanvasWhileWaitingForSignal: 0
+    startActions: []
+    endActions: []
   - speakerName: Clothos
     portrait: {fileID: 21300000, guid: 90de8a25fb68de34eb030b5fda298349, type: 3}
     text: After that, you will assign them to cafe positions and see how their choices
       affect the final conversation.
     advanceMode: 0
     requiredSignalId: 
+    hideCanvasWhileWaitingForSignal: 0
+    startActions: []
+    endActions: []
   - speakerName: Clothos
     portrait: {fileID: 21300000, guid: 90de8a25fb68de34eb030b5fda298349, type: 3}
     text: Let's begin!
+    advanceMode: 0
+    requiredSignalId: 
+    hideCanvasWhileWaitingForSignal: 0
+    startActions: []
+    endActions: []
+  - speakerName: Clothos
+    portrait: {fileID: 21300000, guid: 90de8a25fb68de34eb030b5fda298349, type: 3}
+    text: You need to first adjust blah
     advanceMode: 1
-    requiredSignalId: Tutorial1
+    requiredSignalId: curiosity_slider_changed
+    hideCanvasWhileWaitingForSignal: 0
+    startActions:
+    - actionType: 1
+      targetId: curiosity_slider
+      signalId: 
+      duration: 0.25
+      clearPreviousHighlights: 1
+    endActions:
+    - actionType: 3
+      targetId: 
+      signalId: 
+      duration: 0
+      clearPreviousHighlights: 0
+  - speakerName: Clothos
+    portrait: {fileID: 21300000, guid: 90de8a25fb68de34eb030b5fda298349, type: 3}
+    text: Now tryout all other substances you want to put into that body and hit
+      that create button to welcome your first cafe employee!
+    advanceMode: 0
+    requiredSignalId: 
+    hideCanvasWhileWaitingForSignal: 0
+    startActions: []
+    endActions: []
+  - speakerName: Clothos
+    portrait: {fileID: 21300000, guid: 90de8a25fb68de34eb030b5fda298349, type: 3}
+    text: NAN
+    advanceMode: 1
+    requiredSignalId: create_changed
+    hideCanvasWhileWaitingForSignal: 1
+    startActions: []
+    endActions: []
+  - speakerName: Clothos
+    portrait: {fileID: 21300000, guid: 90de8a25fb68de34eb030b5fda298349, type: 3}
+    text: NAN
+    advanceMode: 1
+    requiredSignalId: create_changed
+    hideCanvasWhileWaitingForSignal: 1
+    startActions: []
+    endActions: []

@@ -16,6 +16,7 @@ public class ConversationCutsceneController : MonoBehaviour
     [SerializeField] private Button advanceButton;
     [SerializeField] private GameObject continueIndicator;
     [SerializeField] private Canvas canvasToHideWhenWaitingForSignal;
+    [SerializeField] private ConversationTutorialMiddleware tutorialMiddleware;
     [SerializeField] private SceneAsyncLoader sceneAsyncLoader;
 
     private int lineIndex;
@@ -83,10 +84,13 @@ public class ConversationCutsceneController : MonoBehaviour
         }
 
         waitingForSignal = line.advanceMode == ConversationAdvanceMode.WaitForSignal;
-        SetWaitingCanvasVisible(!waitingForSignal);
+        SetWaitingCanvasVisible(!waitingForSignal || !line.hideCanvasWhileWaitingForSignal);
 
         if (continueIndicator != null)
             continueIndicator.SetActive(!waitingForSignal);
+
+        if (tutorialMiddleware != null)
+            tutorialMiddleware.HandleLineStarted(line);
     }
 
     private void TryAdvanceFromClick()
@@ -99,6 +103,9 @@ public class ConversationCutsceneController : MonoBehaviour
 
     private void AdvanceLine()
     {
+        if (cutscene != null && cutscene.lines != null && lineIndex < cutscene.lines.Count && tutorialMiddleware != null)
+            tutorialMiddleware.HandleLineEnded(cutscene.lines[lineIndex]);
+
         lineIndex++;
         ShowCurrentLine();
     }
