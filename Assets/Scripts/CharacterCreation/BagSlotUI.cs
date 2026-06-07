@@ -10,6 +10,7 @@ public class BagSlotUI : MonoBehaviour, IPointerClickHandler, IBeginDragHandler,
 
     [Header("Optional")]
     [SerializeField] private TMP_Text typeText;
+    [SerializeField] private TMP_Text countText;
 
     private BagUIController controller;
     private int slotIndex;
@@ -45,6 +46,32 @@ public class BagSlotUI : MonoBehaviour, IPointerClickHandler, IBeginDragHandler,
 
         if (typeText != null)
             typeText.text = subject != null ? subject.type : "";
+
+        if (countText != null)
+            countText.text = "";
+    }
+
+    public void ShowCatalogEntry(Sprite sprite, string displayName, int count)
+    {
+        currentSubject = null;
+        currentSprite = sprite;
+
+        if (portraitImage != null)
+        {
+            portraitImage.sprite = sprite;
+            portraitImage.enabled = sprite != null;
+            portraitImage.preserveAspect = true;
+
+            Color color = portraitImage.color;
+            color.a = sprite != null ? 1f : 0f;
+            portraitImage.color = color;
+        }
+
+        if (typeText != null)
+            typeText.text = displayName;
+
+        if (countText != null)
+            countText.text = $"Labor: {count}";
     }
 
     public void ShowEmpty()
@@ -64,6 +91,9 @@ public class BagSlotUI : MonoBehaviour, IPointerClickHandler, IBeginDragHandler,
 
         if (typeText != null)
             typeText.text = "";
+
+        if (countText != null)
+            countText.text = "";
     }
 
     public void OnPointerClick(PointerEventData eventData)

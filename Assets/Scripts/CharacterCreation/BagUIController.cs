@@ -3,6 +3,14 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
+[System.Serializable]
+public class BagCatalogEntry
+{
+    public string id;
+    public string displayName;
+    [TextArea] public string lockedHint;
+}
+
 public class BagUIController : MonoBehaviour
 {
     [Header("Panel References")]
@@ -20,10 +28,24 @@ public class BagUIController : MonoBehaviour
     [SerializeField] private List<AssignmentDropPanel> assignmentPanels = new List<AssignmentDropPanel>();
 
     [Header("Inspect Panel")]
+    [SerializeField] private GameObject inspectPanel;
     [SerializeField] private Image inspectImage;
     [SerializeField] private TMP_Text inspectTypeText;
+    [SerializeField] private TMP_Text inspectCountText;
     [SerializeField] private TMP_Text inspectDescriptionText;
     [SerializeField] private GameObject removeButton;
+
+    [Header("Catalog")]
+    [SerializeField] private Sprite lockedCatalogSprite;
+    [SerializeField] private List<BagCatalogEntry> catalogCharacters = new List<BagCatalogEntry>
+    {
+        new BagCatalogEntry { id = "Cor", displayName = "Subject-C" },
+        new BagCatalogEntry { id = "Emo", displayName = "Subject-E" },
+        new BagCatalogEntry { id = "Inw", displayName = "Subject-I" },
+        new BagCatalogEntry { id = "Log", displayName = "Subject-L" },
+        new BagCatalogEntry { id = "Rep", displayName = "Subject-R" },
+        new BagCatalogEntry { id = "Soc", displayName = "Subject-S" }
+    };
 
     [Header("Sprite Mapping")]
     [SerializeField] private List<CharacterSpriteEntry> characterSprites = new List<CharacterSpriteEntry>();
@@ -77,6 +99,9 @@ public class BagUIController : MonoBehaviour
         if (removeButton != null)
             removeButton.SetActive(false);
 
+        if (inspectPanel != null)
+            inspectPanel.SetActive(false);
+
         RefreshAll();
     }
 
@@ -111,6 +136,12 @@ public class BagUIController : MonoBehaviour
 
     public void CloseBag()
     {
+        if (inspectPanel.activeSelf)
+        {
+            inspectPanel.SetActive(false);
+            return;
+        }
+        
         if (bagPanel != null)
             bagPanel.SetActive(false);
 
@@ -132,24 +163,175 @@ public class BagUIController : MonoBehaviour
 
     public void RefreshBag()
     {
-        if (GameSession.Instance == null)
-            return;
-
-        int bagCount = GameSession.Instance.GetBagCount();
+        Dictionary<string, int> ownedCounts = BuildOwnedCountLookup();
 
         for (int i = 0; i < slotUIs.Count; i++)
         {
-            if (i < bagCount)
-            {
-                CharacterDefinition subject = GameSession.Instance.GetSubjectAt(i);
-                Sprite sprite = GetSpriteForSubject(subject);
-                slotUIs[i].ShowSubject(subject, sprite);
-            }
-            else
+            BagCatalogEntry catalogEntry = GetCatalogEntryAt(i);
+
+            if (catalogEntry == null || string.IsNullOrEmpty(catalogEntry.id))
             {
                 slotUIs[i].ShowEmpty();
+                continue;
             }
+
+            int count = ownedCounts.TryGetValue(catalogEntry.id, out int ownedCount) ? ownedCount : 0;
+            bool isOwned = count > 0;
+            Sprite sprite = isOwned ? GetSpriteForId(catalogEntry.id) : lockedCatalogSprite;
+            string displayName = isOwned ? GetDisplayName(catalogEntry) : "???";
+
+            slotUIs[i].ShowCatalogEntry(sprite, displayName, count);
         }
+    }
+
+    private Dictionary<string, int> BuildOwnedCountLookup()
+    {
+        Dictionary<string, int> ownedCounts = new Dictionary<string, int>();
+
+        if (GameSession.Instance == null)
+            return ownedCounts;
+
+        int bagCount = GameSession.Instance.GetBagCount();
+
+        for (int i = 0; i < bagCount; i++)
+        {
+            CharacterDefinition subject = GameSession.Instance.GetSubjectAt(i);
+
+            if (subject == null || string.IsNullOrEmpty(subject.id))
+                continue;
+
+            if (ownedCounts.ContainsKey(subject.id))
+                ownedCounts[subject.id]++;
+            else
+                ownedCounts[subject.id] = 1;
+        }
+
+        return ownedCounts;
+    }
+
+    private BagCatalogEntry GetCatalogEntryAt(int catalogIndex)
+    {
+        if (catalogIndex < 0)
+            return null;
+
+        if (catalogIndex < catalogCharacters.Count)
+            return catalogCharacters[catalogIndex];
+
+        if (catalogCharacters.Count > 0 || catalogIndex >= characterSprites.Count)
+            return null;
+
+        CharacterSpriteEntry spriteEntry = characterSprites[catalogIndex];
+
+        return new BagCatalogEntry
+        {
+            id = spriteEntry.id,
+            displayName = spriteEntry.id
+        };
+    }
+
+    private string GetDisplayName(BagCatalogEntry catalogEntry)
+    {
+        CharacterDefinition subject = GetFirstOwnedSubjectById(catalogEntry.id);
+
+        if (subject != null && !string.IsNullOrEmpty(subject.type))
+            return subject.type;
+
+        if (!string.IsNullOrEmpty(catalogEntry.displayName))
+            return catalogEntry.displayName;
+
+        return catalogEntry.id;
+    }
+
+    private CharacterDefinition GetFirstOwnedSubjectById(string id)
+    {
+        if (GameSession.Instance == null || string.IsNullOrEmpty(id))
+            return null;
+
+        int bagCount = GameSession.Instance.GetBagCount();
+
+        for (int i = 0; i < bagCount; i++)
+        {
+            CharacterDefinition subject = GameSession.Instance.GetSubjectAt(i);
+
+            if (subject != null && subject.id == id)
+                return subject;
+        }
+
+        return null;
+    }
+
+    private int GetOwnedCount(string id)
+    {
+        if (GameSession.Instance == null || string.IsNullOrEmpty(id))
+            return 0;
+
+        int count = 0;
+        int bagCount = GameSession.Instance.GetBagCount();
+
+        for (int i = 0; i < bagCount; i++)
+        {
+            CharacterDefinition subject = GameSession.Instance.GetSubjectAt(i);
+
+            if (subject != null && subject.id == id)
+                count++;
+        }
+
+        return count;
+    }
+
+    private Sprite GetSpriteForId(string id)
+    {
+        if (string.IsNullOrEmpty(id))
+            return null;
+
+        if (spriteLookup.TryGetValue(id, out Sprite sprite))
+            return sprite;
+
+        return null;
+    }
+
+    private void ShowCatalogInspect(int catalogIndex)
+    {
+        BagCatalogEntry catalogEntry = GetCatalogEntryAt(catalogIndex);
+
+        if (catalogEntry == null || string.IsNullOrEmpty(catalogEntry.id))
+        {
+            ClearInspect();
+            return;
+        }
+
+        CharacterDefinition subject = GetFirstOwnedSubjectById(catalogEntry.id);
+        bool isOwned = subject != null;
+        int count = GetOwnedCount(catalogEntry.id);
+
+        if (inspectTypeText != null)
+            inspectTypeText.text = isOwned ? GetDisplayName(catalogEntry) : "???";
+
+        if (inspectCountText != null)
+            inspectCountText.text = $"Labor: {count}";
+
+        if (inspectDescriptionText != null)
+        {
+            inspectDescriptionText.text = isOwned
+                ? subject.description
+                : catalogEntry.lockedHint;
+        }
+
+        if (inspectImage != null)
+        {
+            Sprite sprite = isOwned ? GetSpriteForId(catalogEntry.id) : lockedCatalogSprite;
+            inspectImage.sprite = sprite;
+            inspectImage.enabled = sprite != null;
+            inspectImage.preserveAspect = true;
+        }
+
+        currentDisplayIndex = -1;
+
+        if (inspectPanel != null)
+            inspectPanel.SetActive(true);
+
+        if (removeButton != null)
+            removeButton.SetActive(false);
     }
 
     public void RefreshCafeSlots()
@@ -195,25 +377,21 @@ public class BagUIController : MonoBehaviour
     public void OnSlotClicked(int slotIndex, SlotViewType viewType)
     {
         Debug.Log("OnSlotClicked triggered: " + slotIndex);
-        if (GameSession.Instance == null)
-            return;
-
-        CharacterDefinition subject = GameSession.Instance.GetSubjectAt(slotIndex);
-
-        if (subject == null)
-        {
-            if (viewType == SlotViewType.Bag)
-                ClearInspect();
-
-            return;
-        }
 
         if (viewType == SlotViewType.Bag)
         {
-            ShowInspect(slotIndex, subject);
+            ShowCatalogInspect(slotIndex);
         }
         else if (viewType == SlotViewType.Cafe)
         {
+            if (GameSession.Instance == null)
+                return;
+
+            CharacterDefinition subject = GameSession.Instance.GetSubjectAt(slotIndex);
+
+            if (subject == null)
+                return;
+
             Debug.Log("Cafe slot clicked: " + subject.type);
         }
     }
@@ -222,6 +400,9 @@ public class BagUIController : MonoBehaviour
     {
         if (inspectTypeText != null)
             inspectTypeText.text = subject.type;
+
+        if (inspectCountText != null)
+            inspectCountText.text = "";
 
         if (inspectDescriptionText != null)
             inspectDescriptionText.text = subject.description;
@@ -238,6 +419,9 @@ public class BagUIController : MonoBehaviour
 
         if (removeButton != null)
             removeButton.SetActive(true);
+
+        if (inspectPanel != null)
+            inspectPanel.SetActive(true);
     }
 
     public void OnRemoveSlotClicked()
@@ -368,6 +552,9 @@ public class BagUIController : MonoBehaviour
         if (inspectTypeText != null)
             inspectTypeText.text = "";
 
+        if (inspectCountText != null)
+            inspectCountText.text = "";
+
         if (inspectDescriptionText != null)
             inspectDescriptionText.text = "";
 
@@ -381,6 +568,9 @@ public class BagUIController : MonoBehaviour
 
         if (removeButton != null)
             removeButton.SetActive(false);
+
+        if (inspectPanel != null)
+            inspectPanel.SetActive(false);
     }
 
     public void BeginDragPreview(Sprite sprite)
