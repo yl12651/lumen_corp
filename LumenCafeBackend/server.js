@@ -8,12 +8,17 @@ import { fileURLToPath } from "url";
 
 dotenv.config();
 
+const openaiModel = process.env.OPENAI_MODEL || "gpt-5.4-mini";
+const openaiTimeoutMs = Number(process.env.OPENAI_TIMEOUT_MS || 180000);
+
 const app = express();
 app.use(cors());
 app.use(express.json({ limit: "1mb" }));
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
+  timeout: openaiTimeoutMs,
+  maxRetries: 2,
 });
 
 const __filename = fileURLToPath(import.meta.url);
@@ -83,6 +88,20 @@ function formatSubject(subject) {
     .join("\n");
 }
 
+function formatPairSubject(pairSubject, fallbackSpeakerKey) {
+  if (!pairSubject || !pairSubject.subject) {
+    return [
+      `Speaker Key: ${pairSubject?.speakerKey || fallbackSpeakerKey}`,
+      formatSubject(null),
+    ].join("\n");
+  }
+
+  return [
+    `Speaker Key: ${pairSubject.speakerKey || fallbackSpeakerKey}`,
+    formatSubject(pairSubject.subject),
+  ].join("\n");
+}
+
 function buildPairsText(pairs, assignments) {
   if (!pairs || pairs.length === 0) {
     return buildAssignmentsText(assignments);
@@ -98,10 +117,10 @@ function buildPairsText(pairs, assignments) {
         `Position: ${pair.position || ""}`,
         "",
         "Coworker A:",
-        formatSubject(subjects[0]),
+        formatPairSubject(subjects[0], `${pair.pairKey || `pair-${index + 1}`}:a`),
         "",
         "Coworker B:",
-        formatSubject(subjects[1]),
+        formatPairSubject(subjects[1], `${pair.pairKey || `pair-${index + 1}`}:b`),
       ].join("\n");
     })
     .join("\n\n");
@@ -117,10 +136,21 @@ app.post("/api/simulate", async (req, res) => {
       .replace("{{PAIRS}}", pairsText)
       .replace("{{ASSIGNMENTS}}", pairsText);
 
+    console.log(
+      `[CafeBackend] Sending OpenAI request. model=${openaiModel}, timeoutMs=${openaiTimeoutMs}, promptChars=${finalPrompt.length}`
+    );
+
+    const startedAt = Date.now();
+
     const response = await openai.responses.create({
-      model: "gpt-5.4-mini",
+      model: openaiModel,
       input: finalPrompt,
+      max_output_tokens: 2500,
+    }, {
+      timeout: openaiTimeoutMs,
     });
+
+    console.log(`[CafeBackend] OpenAI response received in ${Date.now() - startedAt}ms`);
 
     res.json({
       text: response.output_text,

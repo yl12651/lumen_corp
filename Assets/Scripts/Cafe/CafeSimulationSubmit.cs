@@ -153,12 +153,11 @@ public class CafeSimulationSubmit : MonoBehaviour
             {
                 pairKey = GetPairKey(pair, request.pairs.Count),
                 position = pair.positionName,
-                subjects = new List<CharacterDefinition>
-                {
-                    pair.firstPanel.AssignedSubject,
-                    pair.secondPanel.AssignedSubject
-                }
+                subjects = new List<CafePairSubjectPayload>()
             };
+
+            pairPayload.subjects.Add(BuildPairSubjectPayload(pairPayload.pairKey, pairPayload.position, "a", pair.firstPanel.AssignedSubject));
+            pairPayload.subjects.Add(BuildPairSubjectPayload(pairPayload.pairKey, pairPayload.position, "b", pair.secondPanel.AssignedSubject));
 
             request.pairs.Add(pairPayload);
         }
@@ -189,6 +188,21 @@ public class CafeSimulationSubmit : MonoBehaviour
             return pair.positionName;
 
         return "pair-" + (index + 1);
+    }
+
+    private CafePairSubjectPayload BuildPairSubjectPayload(
+        string pairKey,
+        string position,
+        string slot,
+        CharacterDefinition subject
+    )
+    {
+        return new CafePairSubjectPayload
+        {
+            speakerKey = pairKey + ":" + slot,
+            position = position,
+            subject = subject
+        };
     }
 
     private IEnumerator SendAssignmentsToBackend(CafeSimulationRequest requestData)
@@ -253,7 +267,15 @@ public class CafeSimulationSubmit : MonoBehaviour
     {
         public string pairKey;
         public string position;
-        public List<CharacterDefinition> subjects;
+        public List<CafePairSubjectPayload> subjects;
+    }
+
+    [Serializable]
+    private class CafePairSubjectPayload
+    {
+        public string speakerKey;
+        public string position;
+        public CharacterDefinition subject;
     }
 
     [Serializable]

@@ -23,6 +23,8 @@ Each pair includes:
 - `Coworker A`: the first assigned subject
 - `Coworker B`: the second assigned subject
 
+Each coworker has a `speakerKey`. This is the unique speaker identity for the cutscene. Two coworkers may have the same subject `id` and `type`, so never use `id` alone to identify a dialogue speaker.
+
 Each `subject` may include:
 
 - `id`
@@ -450,11 +452,13 @@ The output must match this structure:
       "position": "string",
       "selectedPair": [
         {
+          "speakerKey": "string",
           "position": "string",
           "id": "string",
           "type": "string"
         },
         {
+          "speakerKey": "string",
           "position": "string",
           "id": "string",
           "type": "string"
@@ -464,6 +468,7 @@ The output must match this structure:
       "context": "string",
       "bubbles": [
         {
+          "speakerKey": "string",
           "speakerId": "string",
           "position": "string",
           "text": "string"
@@ -521,9 +526,12 @@ The two subjects from this pair.
 
 Each selected subject must include:
 
+- `speakerKey`
 - `position`
 - `id`
 - `type`
+
+`speakerKey` must exactly match one of the submitted coworker speaker keys. This field is required because two coworkers in the same pair may have the same subject `id`.
 
 `position` means the shared cafe work position for this pair, such as `Counter`, `Barista`, `Kitchen`, `Floor`, or another submitted position name.
 
@@ -555,11 +563,14 @@ An array of 5–10 dialogue bubbles.
 
 Each bubble must include:
 
+- `speakerKey`
 - `speakerId`
 - `position`
 - `text`
 
-The `speakerId` must match one of the two selected subjects in the same conversation object.
+The `speakerKey` must match one of the two selected subjects in the same conversation object.
+
+The `speakerId` should be the subject `id` of the same selected subject. It is used as display/sprite metadata, not as the unique speaker identity.
 
 The `position` must match the conversation object's pair position.
 
@@ -574,6 +585,7 @@ Do not put extra quotation marks around the dialogue inside the `text` value.
 - Use only subjects that exist in the submitted pairs.
 - Generate one conversation object for each submitted pair.
 - Do not mix subjects between different pairs.
+- Use `speakerKey` to distinguish the two speakers, especially when both coworkers have the same subject `id` or `type`.
 - Do not invent extra speaking characters.
 - Do not make empty panels speak.
 - Do not mention JSON, input data, models, ratings, or the prompt.

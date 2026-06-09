@@ -43,14 +43,15 @@ public class CafeConversationCutsceneController : MonoBehaviour
     [SerializeField] private float inactiveSpeakerAlpha = 0.45f;
 
     private Dictionary<string, Sprite> spriteLookup = new Dictionary<string, Sprite>();
+    private Dictionary<string, string> speakerLabelLookup = new Dictionary<string, string>();
 
     private CafeConversationResponse currentConversation;
     private int bubbleIndex;
     private bool showingEndBubble;
     private bool showingContextBubble;
 
-    private string leftSpeakerId;
-    private string rightSpeakerId;
+    private string leftSpeakerKey;
+    private string rightSpeakerKey;
 
     private void Awake()
     {
@@ -187,28 +188,45 @@ public class CafeConversationCutsceneController : MonoBehaviour
 
     private void SetupSpeakers()
     {
-        string firstSpeakerId = currentConversation.bubbles[0].speakerId;
+        speakerLabelLookup.Clear();
 
-        leftSpeakerId = firstSpeakerId;
-        rightSpeakerId = "";
+        CafeDialogueBubble firstBubble = currentConversation.bubbles[0];
+        string firstSpeakerKey = GetBubbleSpeakerKey(firstBubble);
+
+        leftSpeakerKey = firstSpeakerKey;
+        rightSpeakerKey = "";
+
+        string leftSpriteId = firstBubble.speakerId;
+        string rightSpriteId = "";
 
         if (currentConversation.selectedPair != null)
         {
+            bool hasDuplicateIds = HasDuplicateSelectedSubjectIds();
+
             foreach (SelectedSubjectInfo subject in currentConversation.selectedPair)
             {
                 if (subject == null)
                     continue;
 
-                if (subject.id != leftSpeakerId)
+                string subjectSpeakerKey = GetSelectedSubjectSpeakerKey(subject);
+                speakerLabelLookup[subjectSpeakerKey] = BuildSpeakerLabel(subject, hasDuplicateIds);
+
+                if (subjectSpeakerKey == leftSpeakerKey)
                 {
-                    rightSpeakerId = subject.id;
-                    break;
+                    leftSpriteId = subject.id;
+                    continue;
+                }
+
+                if (string.IsNullOrEmpty(rightSpeakerKey))
+                {
+                    rightSpeakerKey = subjectSpeakerKey;
+                    rightSpriteId = subject.id;
                 }
             }
         }
 
-        SetCharacterImage(leftCharacterImage, leftSpeakerId);
-        SetCharacterImage(rightCharacterImage, rightSpeakerId);
+        SetCharacterImage(leftCharacterImage, leftSpriteId);
+        SetCharacterImage(rightCharacterImage, rightSpriteId);
     }
 
     private void SetCharacterImage(Image image, string speakerId)
@@ -247,12 +265,12 @@ public class CafeConversationCutsceneController : MonoBehaviour
             titleText.text = currentConversation.sceneTitle;
 
         if (speakerLabelText != null)
-            speakerLabelText.text = bubble.speakerId + ": the " + bubble.position;
+            speakerLabelText.text = GetSpeakerLabel(bubble) + ": the " + bubble.position;
 
         if (conversationText != null)
             conversationText.text = bubble.text;
 
-        ApplySpeakerRenderOrder(bubble.speakerId);
+        ApplySpeakerRenderOrder(GetBubbleSpeakerKey(bubble));
     }
     
     private void ShowContextBubble()
@@ -295,7 +313,7 @@ public class CafeConversationCutsceneController : MonoBehaviour
 
     private void ApplySpeakerRenderOrder(string currentSpeakerId)
     {
-        bool leftIsCurrent = currentSpeakerId == leftSpeakerId;
+        bool leftIsCurrent = currentSpeakerId == leftSpeakerKey;
 
         Image currentImage = leftIsCurrent ? leftCharacterImage : rightCharacterImage;
         Image otherImage = leftIsCurrent ? rightCharacterImage : leftCharacterImage;
@@ -382,6 +400,73 @@ public class CafeConversationCutsceneController : MonoBehaviour
         RenderCurrentBubble();
     }
 
+    private string GetBubbleSpeakerKey(CafeDialogueBubble bubble)
+    {
+        if (bubble == null)
+            return "";
+
+        if (!string.IsNullOrEmpty(bubble.speakerKey))
+            return bubble.speakerKey;
+
+        return bubble.speakerId;
+    }
+
+    private string GetSelectedSubjectSpeakerKey(SelectedSubjectInfo subject)
+    {
+        if (subject == null)
+            return "";
+
+        if (!string.IsNullOrEmpty(subject.speakerKey))
+            return subject.speakerKey;
+
+        return subject.id;
+    }
+
+    private bool HasDuplicateSelectedSubjectIds()
+    {
+        if (currentConversation == null || currentConversation.selectedPair == null)
+            return false;
+
+        HashSet<string> ids = new HashSet<string>();
+
+        foreach (SelectedSubjectInfo subject in currentConversation.selectedPair)
+        {
+            if (subject == null || string.IsNullOrEmpty(subject.id))
+                continue;
+
+            if (!ids.Add(subject.id))
+                return true;
+        }
+
+        return false;
+    }
+
+    private string BuildSpeakerLabel(SelectedSubjectInfo subject, bool includeSpeakerSlot)
+    {
+        string label = !string.IsNullOrEmpty(subject.id) ? subject.id : GetSelectedSubjectSpeakerKey(subject);
+
+        if (!includeSpeakerSlot)
+            return label;
+
+        string speakerKey = GetSelectedSubjectSpeakerKey(subject);
+        int separatorIndex = speakerKey.LastIndexOf(':');
+
+        if (separatorIndex < 0 || separatorIndex >= speakerKey.Length - 1)
+            return label;
+
+        return label + " " + speakerKey.Substring(separatorIndex + 1).ToUpperInvariant();
+    }
+
+    private string GetSpeakerLabel(CafeDialogueBubble bubble)
+    {
+        string speakerKey = GetBubbleSpeakerKey(bubble);
+
+        if (!string.IsNullOrEmpty(speakerKey) && speakerLabelLookup.TryGetValue(speakerKey, out string label))
+            return label;
+
+        return bubble != null ? bubble.speakerId : "";
+    }
+
     public void SetFinishAction(CafeConversationFinishAction action)
     {
         finishAction = action;
@@ -466,6 +551,7 @@ public class CafeConversationResponse
 [Serializable]
 public class SelectedSubjectInfo
 {
+    public string speakerKey;
     public string position;
     public string id;
     public string type;
@@ -474,6 +560,7 @@ public class SelectedSubjectInfo
 [Serializable]
 public class CafeDialogueBubble
 {
+    public string speakerKey;
     public string speakerId;
     public string position;
     public string text;
