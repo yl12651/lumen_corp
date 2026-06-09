@@ -6,10 +6,22 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.Networking;
 
+[Serializable]
+public class CafeCoworkerPair
+{
+    public string pairKey;
+    public string positionName;
+    public AssignmentDropPanel firstPanel;
+    public AssignmentDropPanel secondPanel;
+}
+
 public class CafeSimulationSubmit : MonoBehaviour
 {
     [Header("Assignments")]
     [SerializeField] private List<AssignmentDropPanel> assignmentPanels = new List<AssignmentDropPanel>();
+
+    [Header("Coworker Pairs")]
+    [SerializeField] private List<CafeCoworkerPair> coworkerPairs = new List<CafeCoworkerPair>();
 
     [Header("Validation UI")]
     [SerializeField] private TMP_Text warningText;
@@ -18,6 +30,10 @@ public class CafeSimulationSubmit : MonoBehaviour
     [Header("Backend")]
     [SerializeField] private string backendUrl = "http://localhost:3000/api/simulate";
 
+    [Header("Loading")]
+    [SerializeField] private GameObject loadingCanvas;
+
+    [SerializeField] private CafeConversationSetController conversationSetController;
     [SerializeField] private CafeConversationCutsceneController cutsceneController;
     
     private Coroutine warningCoroutine;
@@ -25,6 +41,7 @@ public class CafeSimulationSubmit : MonoBehaviour
     private void Awake()
     {
         HideWarning();
+        SetLoadingVisible(false);
     }
 
     public void SubmitCafeSimulation()
@@ -36,6 +53,7 @@ public class CafeSimulationSubmit : MonoBehaviour
         }
 
         HideWarning();
+        SetLoadingVisible(true);
 
         CafeSimulationRequest requestData = BuildRequestData();
         StartCoroutine(SendAssignmentsToBackend(requestData));
@@ -43,6 +61,23 @@ public class CafeSimulationSubmit : MonoBehaviour
 
     private bool AllPanelsAssigned()
     {
+        if (coworkerPairs.Count > 0)
+        {
+            foreach (CafeCoworkerPair pair in coworkerPairs)
+            {
+                if (pair == null)
+                    continue;
+
+                if (pair.firstPanel == null || pair.secondPanel == null)
+                    return false;
+
+                if (!pair.firstPanel.HasAssignedCharacter || !pair.secondPanel.HasAssignedCharacter)
+                    return false;
+            }
+
+            return true;
+        }
+
         foreach (AssignmentDropPanel panel in assignmentPanels)
         {
             if (panel == null)
@@ -105,8 +140,28 @@ public class CafeSimulationSubmit : MonoBehaviour
     {
         CafeSimulationRequest request = new CafeSimulationRequest
         {
+            pairs = new List<CafePairPayload>(),
             assignments = new List<AssignmentPayload>()
         };
+
+        foreach (CafeCoworkerPair pair in coworkerPairs)
+        {
+            if (pair == null || pair.firstPanel == null || pair.secondPanel == null)
+                continue;
+
+            CafePairPayload pairPayload = new CafePairPayload
+            {
+                pairKey = GetPairKey(pair, request.pairs.Count),
+                position = pair.positionName,
+                subjects = new List<CharacterDefinition>
+                {
+                    pair.firstPanel.AssignedSubject,
+                    pair.secondPanel.AssignedSubject
+                }
+            };
+
+            request.pairs.Add(pairPayload);
+        }
 
         foreach (AssignmentDropPanel panel in assignmentPanels)
         {
@@ -123,6 +178,17 @@ public class CafeSimulationSubmit : MonoBehaviour
         }
 
         return request;
+    }
+
+    private string GetPairKey(CafeCoworkerPair pair, int index)
+    {
+        if (pair != null && !string.IsNullOrEmpty(pair.pairKey))
+            return pair.pairKey;
+
+        if (pair != null && !string.IsNullOrEmpty(pair.positionName))
+            return pair.positionName;
+
+        return "pair-" + (index + 1);
     }
 
     private IEnumerator SendAssignmentsToBackend(CafeSimulationRequest requestData)
@@ -144,6 +210,7 @@ public class CafeSimulationSubmit : MonoBehaviour
 
         if (request.result != UnityWebRequest.Result.Success)
         {
+            SetLoadingVisible(false);
             Debug.LogError("[CafeSimulationSubmit] Request failed: " + request.error);
             Debug.LogError(request.downloadHandler.text);
             yield break;
@@ -152,16 +219,41 @@ public class CafeSimulationSubmit : MonoBehaviour
         Debug.Log("[CafeSimulationSubmit] GPT Result:");
         Debug.Log(request.downloadHandler.text);
         
-        if (cutsceneController != null)
+        if (conversationSetController != null)
+        {
+            conversationSetController.PrepareFromBackendJson(request.downloadHandler.text);
+            SetLoadingVisible(false);
+        }
+        else if (cutsceneController != null)
         {
             cutsceneController.PlayFromBackendJson(request.downloadHandler.text);
+            SetLoadingVisible(false);
         }
+        else
+        {
+            SetLoadingVisible(false);
+        }
+    }
+
+    private void SetLoadingVisible(bool visible)
+    {
+        if (loadingCanvas != null)
+            loadingCanvas.SetActive(visible);
     }
 
     [Serializable]
     private class CafeSimulationRequest
     {
+        public List<CafePairPayload> pairs;
         public List<AssignmentPayload> assignments;
+    }
+
+    [Serializable]
+    private class CafePairPayload
+    {
+        public string pairKey;
+        public string position;
+        public List<CharacterDefinition> subjects;
     }
 
     [Serializable]

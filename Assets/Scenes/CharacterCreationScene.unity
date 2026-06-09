@@ -6239,6 +6239,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SceneTransitionController
   sceneAsyncLoader: {fileID: 1402664341}
+  minimumSubjectsForCafe: 6
+  cutsceneController: {fileID: 508874421}
+  notEnoughSignalId: not_enough_triggered
 --- !u!4 &1402664340
 Transform:
   m_ObjectHideFlags: 0
@@ -10557,6 +10560,8 @@ MonoBehaviour:
     sprite: {fileID: 21300000, guid: 8c2f5c7d9a674cc4c947b0bb6bd59bd2, type: 3}
   - id: Soc
     sprite: {fileID: 21300000, guid: 3ddad039cb4e6e44d96a8093511cc890, type: 3}
+  assignmentWorldSprites: []
+  assignmentWorldObjects: []
   rootCanvas: {fileID: 0}
   dragPreviewImage: {fileID: 0}
   cutsceneController: {fileID: 508874421}

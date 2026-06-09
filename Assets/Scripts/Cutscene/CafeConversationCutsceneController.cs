@@ -4,8 +4,16 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
+public enum CafeConversationFinishAction
+{
+    LoadScene,
+    HideAndReturnToCafe
+}
+
 public class CafeConversationCutsceneController : MonoBehaviour
 {
+    public event Action ConversationFinished;
+
     [Header("Root")]
     [SerializeField] private GameObject cutsceneRoot;
     [SerializeField] private GameObject cafeRoot;
@@ -26,6 +34,7 @@ public class CafeConversationCutsceneController : MonoBehaviour
 
     [Header("End")]
     [SerializeField] private string endBubbleText = "The End";
+    [SerializeField] private CafeConversationFinishAction finishAction = CafeConversationFinishAction.LoadScene;
     [SerializeField] private string characterCreationSceneName = "CharacterCreationScene";
     [SerializeField] private SceneAsyncLoader sceneAsyncLoader;
 
@@ -85,6 +94,21 @@ public class CafeConversationCutsceneController : MonoBehaviour
         string conversationJson = ExtractConversationJson(backendJson);
         conversationJson = CleanJsonText(conversationJson);
 
+        CafeConversationSetResponse conversationSet =
+            JsonUtility.FromJson<CafeConversationSetResponse>(conversationJson);
+
+        if (conversationSet != null && !string.IsNullOrEmpty(conversationSet.error))
+        {
+            PlayConversation(new CafeConversationResponse { error = conversationSet.error });
+            return;
+        }
+
+        if (conversationSet != null && conversationSet.conversations != null && conversationSet.conversations.Count > 0)
+        {
+            PlayConversation(conversationSet.conversations[0]);
+            return;
+        }
+
         CafeConversationResponse conversation =
             JsonUtility.FromJson<CafeConversationResponse>(conversationJson);
 
@@ -126,6 +150,7 @@ public class CafeConversationCutsceneController : MonoBehaviour
         currentConversation = conversation;
         bubbleIndex = 0;
         showingEndBubble = false;
+        showingContextBubble = false;
 
         if (cafeRoot != null)
         {
@@ -341,7 +366,7 @@ public class CafeConversationCutsceneController : MonoBehaviour
     {
         if (showingEndBubble)
         {
-            LoadSceneAsync(characterCreationSceneName);
+            FinishConversation();
             return;
         }
 
@@ -355,6 +380,37 @@ public class CafeConversationCutsceneController : MonoBehaviour
 
         bubbleIndex++;
         RenderCurrentBubble();
+    }
+
+    public void SetFinishAction(CafeConversationFinishAction action)
+    {
+        finishAction = action;
+    }
+
+    private void FinishConversation()
+    {
+        if (finishAction == CafeConversationFinishAction.HideAndReturnToCafe)
+        {
+            HideCutsceneAndReturnToCafe();
+            ConversationFinished?.Invoke();
+            return;
+        }
+
+        LoadSceneAsync(characterCreationSceneName);
+    }
+
+    public void HideCutsceneAndReturnToCafe()
+    {
+        currentConversation = null;
+        bubbleIndex = 0;
+        showingEndBubble = false;
+        showingContextBubble = false;
+
+        if (cutsceneRoot != null)
+            cutsceneRoot.SetActive(false);
+
+        if (cafeRoot != null)
+            cafeRoot.SetActive(true);
     }
 
     private void SetImageAlpha(Image image, float alpha)
@@ -389,8 +445,17 @@ public class CafeConversationCutsceneController : MonoBehaviour
 }
 
 [Serializable]
+public class CafeConversationSetResponse
+{
+    public List<CafeConversationResponse> conversations;
+    public string error;
+}
+
+[Serializable]
 public class CafeConversationResponse
 {
+    public string pairKey;
+    public string position;
     public List<SelectedSubjectInfo> selectedPair;
     public string sceneTitle;
     public string context;

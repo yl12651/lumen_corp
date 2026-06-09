@@ -7,6 +7,7 @@ public class HoverRaycaster : MonoBehaviour
     [SerializeField] private HoverUIManager hoverUI;
 
     private CafeInteractable current;
+    private bool hoverEnabled = true;
 
     private void Awake()
     {
@@ -16,6 +17,9 @@ public class HoverRaycaster : MonoBehaviour
 
     private void Update()
     {
+        if (!hoverEnabled)
+            return;
+
         Ray ray = targetCamera.ScreenPointToRay(Input.mousePosition);
 
         if (Physics.Raycast(ray, out RaycastHit hit, 1000f, interactableMask))
@@ -31,7 +35,9 @@ public class HoverRaycaster : MonoBehaviour
                 if (current != null)
                 {
                     current.SetHighlighted(true);
-                    hoverUI.Show(current.panelData);
+
+                    if (hoverUI != null)
+                        hoverUI.Show(current.panelData);
                 }
             }
         }
@@ -49,6 +55,15 @@ public class HoverRaycaster : MonoBehaviour
             current = null;
         }
 
-        hoverUI.Hide();
+        if (hoverUI != null)
+            hoverUI.Hide();
+    }
+
+    public void SetHoverEnabled(bool enabled)
+    {
+        hoverEnabled = enabled;
+
+        if (!hoverEnabled)
+            ClearCurrent();
     }
 }

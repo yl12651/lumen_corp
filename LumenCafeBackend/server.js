@@ -58,13 +58,64 @@ function buildAssignmentsText(assignments) {
     .join("\n\n");
 }
 
+function formatSubject(subject) {
+  if (!subject) {
+    return "Assigned Subject: None";
+  }
+
+  return [
+    `Assigned Subject Type: ${subject.type}`,
+    `ID: ${subject.id}`,
+    `Description: ${subject.description}`,
+    subject.traitRatings
+      ? [
+          "Traits:",
+          `- Curiosity: ${subject.traitRatings.curiosity}`,
+          `- Discipline: ${subject.traitRatings.discipline}`,
+          `- Drive: ${subject.traitRatings.drive}`,
+          `- Empathy: ${subject.traitRatings.empathy}`,
+          `- Instability: ${subject.traitRatings.instability}`,
+          `- Sincerity: ${subject.traitRatings.sincerity}`,
+        ].join("\n")
+      : "",
+  ]
+    .filter(Boolean)
+    .join("\n");
+}
+
+function buildPairsText(pairs, assignments) {
+  if (!pairs || pairs.length === 0) {
+    return buildAssignmentsText(assignments);
+  }
+
+  return pairs
+    .map((pair, index) => {
+      const subjects = Array.isArray(pair.subjects) ? pair.subjects : [];
+
+      return [
+        `Pair ${index + 1}`,
+        `Pair Key: ${pair.pairKey || `pair-${index + 1}`}`,
+        `Position: ${pair.position || ""}`,
+        "",
+        "Coworker A:",
+        formatSubject(subjects[0]),
+        "",
+        "Coworker B:",
+        formatSubject(subjects[1]),
+      ].join("\n");
+    })
+    .join("\n\n");
+}
+
 app.post("/api/simulate", async (req, res) => {
   try {
-    const { assignments } = req.body;
+    const { pairs, assignments } = req.body;
 
     const template = loadPromptTemplate();
-    const assignmentsText = buildAssignmentsText(assignments);
-    const finalPrompt = template.replace("{{ASSIGNMENTS}}", assignmentsText);
+    const pairsText = buildPairsText(pairs, assignments);
+    const finalPrompt = template
+      .replace("{{PAIRS}}", pairsText)
+      .replace("{{ASSIGNMENTS}}", pairsText);
 
     const response = await openai.responses.create({
       model: "gpt-5.4-mini",
