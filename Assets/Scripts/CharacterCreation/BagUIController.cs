@@ -11,6 +11,14 @@ public class BagCatalogEntry
     [TextArea] public string lockedHint;
 }
 
+[System.Serializable]
+public class AssignmentWorldObjectBinding
+{
+    public AssignmentDropPanel panel;
+    public GameObject targetObject;
+    public SpriteRenderer spriteRenderer;
+}
+
 public class BagUIController : MonoBehaviour
 {
     [Header("Panel References")]
@@ -50,6 +58,10 @@ public class BagUIController : MonoBehaviour
     [Header("Sprite Mapping")]
     [SerializeField] private List<CharacterSpriteEntry> characterSprites = new List<CharacterSpriteEntry>();
 
+    [Header("Assignment World Sprites")]
+    [SerializeField] private List<CharacterSpriteEntry> assignmentWorldSprites = new List<CharacterSpriteEntry>();
+    [SerializeField] private List<AssignmentWorldObjectBinding> assignmentWorldObjects = new List<AssignmentWorldObjectBinding>();
+
     [Header("Drag Preview")]
     [SerializeField] private Canvas rootCanvas;
     [SerializeField] private Image dragPreviewImage;
@@ -59,6 +71,7 @@ public class BagUIController : MonoBehaviour
     [SerializeField] private string openBagSignalId = "bag_triggered";
 
     private Dictionary<string, Sprite> spriteLookup = new Dictionary<string, Sprite>();
+    private Dictionary<string, Sprite> assignmentWorldSpriteLookup = new Dictionary<string, Sprite>();
 
     // Key = inventory index in GameSession.
     // Value = the assignment panel currently holding that character.
@@ -70,6 +83,7 @@ public class BagUIController : MonoBehaviour
     private void Awake()
     {
         BuildSpriteLookup();
+        BuildAssignmentWorldSpriteLookup();
 
         for (int i = 0; i < slotUIs.Count; i++)
         {
@@ -118,6 +132,19 @@ public class BagUIController : MonoBehaviour
         }
     }
 
+    private void BuildAssignmentWorldSpriteLookup()
+    {
+        assignmentWorldSpriteLookup.Clear();
+
+        foreach (CharacterSpriteEntry entry in assignmentWorldSprites)
+        {
+            if (!string.IsNullOrEmpty(entry.id) && entry.sprite != null)
+            {
+                assignmentWorldSpriteLookup[entry.id] = entry.sprite;
+            }
+        }
+    }
+
     public void OpenBag()
     {
         if (bagPanel != null)
@@ -159,6 +186,7 @@ public class BagUIController : MonoBehaviour
         RefreshBag();
         RefreshCafeSlots();
         RefreshAssignmentPanels();
+        RefreshAssignmentWorldObjects();
     }
 
     public void RefreshBag()
@@ -374,6 +402,29 @@ public class BagUIController : MonoBehaviour
         }
     }
 
+    private void RefreshAssignmentWorldObjects()
+    {
+        foreach (AssignmentWorldObjectBinding binding in assignmentWorldObjects)
+        {
+            if (binding == null)
+                continue;
+
+            SpriteRenderer renderer = GetAssignmentWorldRenderer(binding);
+            bool hasAssignment = binding.panel != null && binding.panel.HasAssignedCharacter;
+            Sprite sprite = hasAssignment ? GetAssignmentWorldSpriteForSubject(binding.panel.AssignedSubject) : null;
+
+            if (renderer != null)
+                renderer.sprite = sprite;
+
+            GameObject targetObject = binding.targetObject != null
+                ? binding.targetObject
+                : renderer != null ? renderer.gameObject : null;
+
+            if (targetObject != null)
+                targetObject.SetActive(hasAssignment);
+        }
+    }
+
     public void OnSlotClicked(int slotIndex, SlotViewType viewType)
     {
         Debug.Log("OnSlotClicked triggered: " + slotIndex);
@@ -465,6 +516,7 @@ public class BagUIController : MonoBehaviour
         }
 
         assignedLookup = rebuilt;
+        RefreshAssignmentWorldObjects();
     }
 
     public bool IsInventoryIndexAssigned(int inventoryIndex)
@@ -521,6 +573,7 @@ public class BagUIController : MonoBehaviour
         targetPanel.SetAssigned(inventoryIndex, subject, sprite);
 
         RefreshCafeSlots();
+        RefreshAssignmentWorldObjects();
     }
 
     public void ReturnInventoryIndexFromAssignment(int inventoryIndex)
@@ -534,6 +587,7 @@ public class BagUIController : MonoBehaviour
         }
 
         RefreshCafeSlots();
+        RefreshAssignmentWorldObjects();
     }
 
     private Sprite GetSpriteForSubject(CharacterDefinition subject)
@@ -545,6 +599,31 @@ public class BagUIController : MonoBehaviour
             return sprite;
 
         return null;
+    }
+
+    private Sprite GetAssignmentWorldSpriteForSubject(CharacterDefinition subject)
+    {
+        if (subject == null)
+            return null;
+
+        if (!string.IsNullOrEmpty(subject.id) && assignmentWorldSpriteLookup.TryGetValue(subject.id, out Sprite sprite))
+            return sprite;
+
+        if (!string.IsNullOrEmpty(subject.type) && assignmentWorldSpriteLookup.TryGetValue(subject.type, out sprite))
+            return sprite;
+
+        return null;
+    }
+
+    private SpriteRenderer GetAssignmentWorldRenderer(AssignmentWorldObjectBinding binding)
+    {
+        if (binding.spriteRenderer != null)
+            return binding.spriteRenderer;
+
+        if (binding.targetObject == null)
+            return null;
+
+        return binding.targetObject.GetComponentInChildren<SpriteRenderer>(true);
     }
 
     private void ClearInspect()
