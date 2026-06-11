@@ -1,0 +1,477 @@
+{
+	"Version": 3,
+	"Parameters": [
+		{
+			"Id": "Cables",
+			"GroupId": "",
+			"Name": "丝线"
+		},
+		{
+			"Id": "ParamAngleX",
+			"GroupId": "",
+			"Name": "角度 X"
+		},
+		{
+			"Id": "ParamAngleY",
+			"GroupId": "",
+			"Name": "角度 Y"
+		},
+		{
+			"Id": "ParamAngleZ",
+			"GroupId": "",
+			"Name": "角度 Z"
+		},
+		{
+			"Id": "ParamEyeLOpen",
+			"GroupId": "",
+			"Name": "左眼 开闭"
+		},
+		{
+			"Id": "ParamEyeLSmile",
+			"GroupId": "",
+			"Name": "左眼 微笑"
+		},
+		{
+			"Id": "ParamEyeROpen",
+			"GroupId": "",
+			"Name": "右眼 开闭"
+		},
+		{
+			"Id": "ParamEyeRSmile",
+			"GroupId": "",
+			"Name": "右眼 微笑"
+		},
+		{
+			"Id": "ParamEyeBallX",
+			"GroupId": "",
+			"Name": "眼珠 X"
+		},
+		{
+			"Id": "ParamEyeBallY",
+			"GroupId": "",
+			"Name": "眼珠 Y"
+		},
+		{
+			"Id": "ParamBrowLY",
+			"GroupId": "",
+			"Name": "左眉 上下"
+		},
+		{
+			"Id": "ParamBrowRY",
+			"GroupId": "",
+			"Name": "右眉 上下"
+		},
+		{
+			"Id": "ParamBrowLX",
+			"GroupId": "",
+			"Name": "左眉 左右"
+		},
+		{
+			"Id": "ParamBrowRX",
+			"GroupId": "",
+			"Name": "右眉 左右"
+		},
+		{
+			"Id": "ParamBrowLAngle",
+			"GroupId": "",
+			"Name": "左眉 角度"
+		},
+		{
+			"Id": "ParamBrowRAngle",
+			"GroupId": "",
+			"Name": "右眉 角度"
+		},
+		{
+			"Id": "ParamBrowLForm",
+			"GroupId": "",
+			"Name": "左眉 変形"
+		},
+		{
+			"Id": "ParamBrowRForm",
+			"GroupId": "",
+			"Name": "右眉 変形"
+		},
+		{
+			"Id": "ParamMouthForm",
+			"GroupId": "",
+			"Name": "嘴 变形"
+		},
+		{
+			"Id": "ParamMouthOpenY",
+			"GroupId": "",
+			"Name": "嘴 开闭"
+		},
+		{
+			"Id": "MouthWiden",
+			"GroupId": "",
+			"Name": "嘴 Widen"
+		},
+		{
+			"Id": "MouthX",
+			"GroupId": "",
+			"Name": "嘴X"
+		},
+		{
+			"Id": "ParamCheek",
+			"GroupId": "",
+			"Name": "脸颊泛红"
+		},
+		{
+			"Id": "ParamBodyAngleX",
+			"GroupId": "",
+			"Name": "身体旋转 X"
+		},
+		{
+			"Id": "ParamBodyAngleY",
+			"GroupId": "",
+			"Name": "身体旋转 Y"
+		},
+		{
+			"Id": "ParamBodyAngleZ",
+			"GroupId": "",
+			"Name": "身体旋转 Z"
+		},
+		{
+			"Id": "Rarm",
+			"GroupId": "",
+			"Name": "R arm"
+		},
+		{
+			"Id": "Rarm2",
+			"GroupId": "",
+			"Name": "R arm2"
+		},
+		{
+			"Id": "Rarm3",
+			"GroupId": "",
+			"Name": "R arm3"
+		},
+		{
+			"Id": "Rarm4",
+			"GroupId": "",
+			"Name": "R arm4"
+		},
+		{
+			"Id": "RHandX",
+			"GroupId": "",
+			"Name": "R HandX"
+		},
+		{
+			"Id": "RHandY",
+			"GroupId": "",
+			"Name": "R HandY"
+		},
+		{
+			"Id": "Larm",
+			"GroupId": "",
+			"Name": "L arm"
+		},
+		{
+			"Id": "Larm2",
+			"GroupId": "",
+			"Name": "L arm2"
+		},
+		{
+			"Id": "LHnad",
+			"GroupId": "",
+			"Name": "L Hnad"
+		},
+		{
+			"Id": "LHnad2",
+			"GroupId": "",
+			"Name": "L Hnad2"
+		},
+		{
+			"Id": "LHnadX",
+			"GroupId": "",
+			"Name": "L HnadX"
+		},
+		{
+			"Id": "LHnadY",
+			"GroupId": "",
+			"Name": "L HnadY"
+		},
+		{
+			"Id": "LHand1",
+			"GroupId": "",
+			"Name": "L Hand1"
+		},
+		{
+			"Id": "ParamBreath",
+			"GroupId": "",
+			"Name": "呼吸"
+		},
+		{
+			"Id": "ParamHairFrontL1",
+			"GroupId": "ParamGroup",
+			"Name": "摇动 前发L1"
+		},
+		{
+			"Id": "ParamHairFrontL2",
+			"GroupId": "ParamGroup",
+			"Name": "摇动 前发L2"
+		},
+		{
+			"Id": "ParamHairFrontL3",
+			"GroupId": "ParamGroup",
+			"Name": "摇动 前发L3"
+		},
+		{
+			"Id": "ParamHairFrontL4",
+			"GroupId": "ParamGroup",
+			"Name": "摇动 前发L4"
+		},
+		{
+			"Id": "ParamHairBackL",
+			"GroupId": "ParamGroup",
+			"Name": "摇动 后发L1"
+		},
+		{
+			"Id": "ParamHairBackL2",
+			"GroupId": "ParamGroup",
+			"Name": "摇动 后发L2"
+		},
+		{
+			"Id": "ParamHairBackL3",
+			"GroupId": "ParamGroup",
+			"Name": "摇动 后发L3"
+		},
+		{
+			"Id": "ParamHairBackL4",
+			"GroupId": "ParamGroup",
+			"Name": "摇动 后发L4"
+		},
+		{
+			"Id": "ParamHairBackR",
+			"GroupId": "ParamGroup",
+			"Name": "摇动 后发R"
+		},
+		{
+			"Id": "ParamHairBackR2",
+			"GroupId": "ParamGroup",
+			"Name": "摇动 后发R2"
+		},
+		{
+			"Id": "ParamHairBackR3",
+			"GroupId": "ParamGroup",
+			"Name": "摇动 后发R3"
+		},
+		{
+			"Id": "ParamHairBackR4",
+			"GroupId": "ParamGroup",
+			"Name": "摇动 后发R4"
+		},
+		{
+			"Id": "ParamHairFrontR",
+			"GroupId": "ParamGroup",
+			"Name": "摇动 前发R"
+		},
+		{
+			"Id": "ParamHairFrontR2",
+			"GroupId": "ParamGroup",
+			"Name": "摇动 前发R2"
+		},
+		{
+			"Id": "ParamHairFrontR3",
+			"GroupId": "ParamGroup",
+			"Name": "摇动 前发R3"
+		},
+		{
+			"Id": "ParamHairFrontR4",
+			"GroupId": "ParamGroup",
+			"Name": "摇动 前发R4"
+		},
+		{
+			"Id": "HandWire",
+			"GroupId": "ParamGroup",
+			"Name": "手线"
+		},
+		{
+			"Id": "HandWire2",
+			"GroupId": "ParamGroup",
+			"Name": "手线2"
+		},
+		{
+			"Id": "HandWire3",
+			"GroupId": "ParamGroup",
+			"Name": "手线3"
+		},
+		{
+			"Id": "ParamHairSide",
+			"GroupId": "ParamGroup",
+			"Name": "摇动 侧发"
+		},
+		{
+			"Id": "ParamHairBack",
+			"GroupId": "ParamGroup",
+			"Name": "摇动 后发"
+		}
+	],
+	"ParameterGroups": [
+		{
+			"Id": "ParamGroup",
+			"GroupId": "",
+			"Name": "物理"
+		}
+	],
+	"Parts": [
+		{
+			"Id": "Part61",
+			"Name": "clo拆分头发改 (1).psd(未找到对应图层)"
+		},
+		{
+			"Id": "Part",
+			"Name": "手背线"
+		},
+		{
+			"Id": "Part2",
+			"Name": "组 1"
+		},
+		{
+			"Id": "Part23",
+			"Name": "手掌线"
+		},
+		{
+			"Id": "Part24",
+			"Name": "纺锤"
+		},
+		{
+			"Id": "Part27",
+			"Name": "左刘海长"
+		},
+		{
+			"Id": "Part30",
+			"Name": "左碎发"
+		},
+		{
+			"Id": "Part32",
+			"Name": "组 1"
+		},
+		{
+			"Id": "Part57",
+			"Name": "左刘海长"
+		},
+		{
+			"Id": "Part3",
+			"Name": "头"
+		},
+		{
+			"Id": "Part18",
+			"Name": "衣领"
+		},
+		{
+			"Id": "Part19",
+			"Name": "脖子"
+		},
+		{
+			"Id": "Part20",
+			"Name": "左手"
+		},
+		{
+			"Id": "Part22",
+			"Name": "身体"
+		},
+		{
+			"Id": "Part25",
+			"Name": "线表"
+		},
+		{
+			"Id": "Part26",
+			"Name": "线内"
+		},
+		{
+			"Id": "Part28",
+			"Name": "左刘海外"
+		},
+		{
+			"Id": "Part29",
+			"Name": "左刘海内"
+		},
+		{
+			"Id": "Part33",
+			"Name": "头"
+		},
+		{
+			"Id": "Part49",
+			"Name": "脖子"
+		},
+		{
+			"Id": "Part58",
+			"Name": "左刘海外"
+		},
+		{
+			"Id": "Part59",
+			"Name": "左刘海内"
+		},
+		{
+			"Id": "Part4",
+			"Name": "螳螂"
+		},
+		{
+			"Id": "Part5",
+			"Name": "头饰"
+		},
+		{
+			"Id": "Part6",
+			"Name": "刘海"
+		},
+		{
+			"Id": "Part7",
+			"Name": "脸"
+		},
+		{
+			"Id": "Part17",
+			"Name": "后发"
+		},
+		{
+			"Id": "Part21",
+			"Name": "手指"
+		},
+		{
+			"Id": "Part34",
+			"Name": "螳螂"
+		},
+		{
+			"Id": "Part8",
+			"Name": "右眼"
+		},
+		{
+			"Id": "Part10",
+			"Name": "左眼"
+		},
+		{
+			"Id": "Part12",
+			"Name": "鼻"
+		},
+		{
+			"Id": "Part13",
+			"Name": "嘴"
+		},
+		{
+			"Id": "Part14",
+			"Name": "脸"
+		},
+		{
+			"Id": "Part15",
+			"Name": "左耳"
+		},
+		{
+			"Id": "Part16",
+			"Name": "右耳"
+		},
+		{
+			"Id": "Part9",
+			"Name": "睫毛"
+		},
+		{
+			"Id": "Part11",
+			"Name": "睫毛"
+		}
+	],
+	"CombinedParameters": [
+		[
+			"RHandX",
+			"RHandY"
+		]
+	]
+}
