@@ -7,7 +7,24 @@
 			"clo.4096/texture_01.png"
 		],
 		"Physics": "clo.physics3.json",
-		"DisplayInfo": "clo.cdi3.json"
+		"DisplayInfo": "clo.cdi3.json",
+		"Motions": {
+			"Idle": [
+				{
+					"File": "Animation/Idle.motion3.json"
+				}
+			],
+			"Trigger_1": [
+				{
+					"File": "Animation/1.motion3.json"
+				}
+			],
+			"Trigger_3": [
+				{
+					"File": "Animation/3.motion3.json"
+				}
+			]
+		}
 	},
 	"Groups": [
 		{

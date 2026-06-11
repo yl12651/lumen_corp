@@ -4324,7 +4324,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0cd9e6647bfff7542acb0200ab74bdd1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Live2D.Cubism::Live2D.Cubism.Framework.MotionFade.CubismFadeController
-  CubismFadeMotionList: {fileID: 0}
+  CubismFadeMotionList: {fileID: 11400000, guid: 8931e337d92cfa44bb4eeddffa83f3f9, type: 2}
 --- !u!114 &2144755062000263104
 MonoBehaviour:
   m_ObjectHideFlags: 0
