@@ -37,6 +37,7 @@ public class BagUIController : MonoBehaviour
 
     [Header("Inspect Panel")]
     [SerializeField] private GameObject inspectPanel;
+    [SerializeField] private BagPreviewPageAnimator previewPageAnimator;
     [SerializeField] private Image inspectImage;
     [SerializeField] private TMP_Text inspectTypeText;
     [SerializeField] private TMP_Text inspectCountText;
@@ -78,12 +79,16 @@ public class BagUIController : MonoBehaviour
     private Dictionary<int, AssignmentDropPanel> assignedLookup = new Dictionary<int, AssignmentDropPanel>();
 
     private int currentDisplayIndex = -1;
+    private int currentCatalogPreviewIndex = -1;
     private bool hasSentOpenBagSignal;
 
     private void Awake()
     {
         BuildSpriteLookup();
         BuildAssignmentWorldSpriteLookup();
+
+        if (previewPageAnimator == null && inspectPanel != null)
+            previewPageAnimator = inspectPanel.GetComponent<BagPreviewPageAnimator>();
 
         for (int i = 0; i < slotUIs.Count; i++)
         {
@@ -163,8 +168,14 @@ public class BagUIController : MonoBehaviour
 
     public void CloseBag()
     {
-        if (inspectPanel.activeSelf)
+        if (inspectPanel != null && inspectPanel.activeSelf)
         {
+            if (previewPageAnimator != null)
+            {
+                previewPageAnimator.Stop();
+                previewPageAnimator.RestoreHomeTransforms();
+            }
+
             inspectPanel.SetActive(false);
             return;
         }
@@ -320,6 +331,11 @@ public class BagUIController : MonoBehaviour
 
     private void ShowCatalogInspect(int catalogIndex)
     {
+        ShowCatalogInspect(catalogIndex, false);
+    }
+
+    private void ShowCatalogInspect(int catalogIndex, bool animateFromNextDirection)
+    {
         BagCatalogEntry catalogEntry = GetCatalogEntryAt(catalogIndex);
 
         if (catalogEntry == null || string.IsNullOrEmpty(catalogEntry.id))
@@ -327,6 +343,34 @@ public class BagUIController : MonoBehaviour
             ClearInspect();
             return;
         }
+
+        if (animateFromNextDirection && inspectPanel != null && inspectPanel.activeSelf)
+        {
+            AnimateCatalogInspectTo(catalogIndex, true);
+            return;
+        }
+
+        if (previewPageAnimator != null)
+            previewPageAnimator.Stop();
+
+        SetCatalogInspectContent(catalogIndex);
+
+        if (previewPageAnimator != null)
+            previewPageAnimator.RestoreHomeTransforms();
+
+        if (inspectPanel != null)
+            inspectPanel.SetActive(true);
+
+        if (removeButton != null)
+            removeButton.SetActive(false);
+    }
+
+    private void SetCatalogInspectContent(int catalogIndex)
+    {
+        BagCatalogEntry catalogEntry = GetCatalogEntryAt(catalogIndex);
+
+        if (catalogEntry == null || string.IsNullOrEmpty(catalogEntry.id))
+            return;
 
         CharacterDefinition subject = GetFirstOwnedSubjectById(catalogEntry.id);
         bool isOwned = subject != null;
@@ -354,12 +398,7 @@ public class BagUIController : MonoBehaviour
         }
 
         currentDisplayIndex = -1;
-
-        if (inspectPanel != null)
-            inspectPanel.SetActive(true);
-
-        if (removeButton != null)
-            removeButton.SetActive(false);
+        currentCatalogPreviewIndex = catalogIndex;
     }
 
     public void RefreshCafeSlots()
@@ -445,6 +484,67 @@ public class BagUIController : MonoBehaviour
 
             Debug.Log("Cafe slot clicked: " + subject.type);
         }
+    }
+
+    public void OnPreviewNextClicked()
+    {
+        CycleCatalogPreview(1);
+    }
+
+    public void OnPreviewPreviousClicked()
+    {
+        CycleCatalogPreview(-1);
+    }
+
+    private void CycleCatalogPreview(int direction)
+    {
+        int catalogCount = GetCatalogCount();
+
+        if (catalogCount <= 0)
+            return;
+
+        if (previewPageAnimator != null && previewPageAnimator.IsAnimating)
+            return;
+
+        int fromIndex = currentCatalogPreviewIndex >= 0 ? currentCatalogPreviewIndex : 0;
+        int toIndex = WrapCatalogIndex(fromIndex + direction, catalogCount);
+
+        if (inspectPanel != null && !inspectPanel.activeSelf)
+            inspectPanel.SetActive(true);
+
+        AnimateCatalogInspectTo(toIndex, direction >= 0);
+    }
+
+    private int GetCatalogCount()
+    {
+        if (catalogCharacters.Count > 0)
+            return catalogCharacters.Count;
+
+        return characterSprites.Count;
+    }
+
+    private int WrapCatalogIndex(int index, int count)
+    {
+        if (count <= 0)
+            return -1;
+
+        int wrapped = index % count;
+
+        if (wrapped < 0)
+            wrapped += count;
+
+        return wrapped;
+    }
+
+    private void AnimateCatalogInspectTo(int targetCatalogIndex, bool nextDirection)
+    {
+        if (previewPageAnimator == null)
+        {
+            SetCatalogInspectContent(targetCatalogIndex);
+            return;
+        }
+
+        previewPageAnimator.Play(() => SetCatalogInspectContent(targetCatalogIndex), nextDirection);
     }
 
     private void ShowInspect(int slotIndex, CharacterDefinition subject)
@@ -628,6 +728,12 @@ public class BagUIController : MonoBehaviour
 
     private void ClearInspect()
     {
+        if (previewPageAnimator != null)
+        {
+            previewPageAnimator.Stop();
+            previewPageAnimator.RestoreHomeTransforms();
+        }
+
         if (inspectTypeText != null)
             inspectTypeText.text = "";
 
