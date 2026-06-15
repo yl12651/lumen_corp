@@ -15,6 +15,7 @@ public class Live2DMotionTrigger : MonoBehaviour
     [SerializeField] private AnimationClip idleMotion;
     [SerializeField] private AnimationClip trigger1Motion;
     [SerializeField] private AnimationClip trigger3Motion;
+    [SerializeField] private AnimationClip speakMotion;
 
     [Header("Playback")]
     [SerializeField] private bool playIdleOnStart = true;
@@ -71,6 +72,11 @@ public class Live2DMotionTrigger : MonoBehaviour
     {
         Play(trigger3Motion, false, CubismMotionPriority.PriorityForce, clearCurrentMotionBeforeTrigger, true, true);
     }
+    
+    public void PlaySpeak()
+    {
+        Play(speakMotion, false, CubismMotionPriority.PriorityForce, clearCurrentMotionBeforeTrigger, true, true);
+    }
 
     public void PlayTriggerByName(string triggerName)
     {
@@ -86,6 +92,9 @@ public class Live2DMotionTrigger : MonoBehaviour
                 break;
             case "Idle":
                 PlayIdle();
+                break;
+            case "Speak":
+                PlaySpeak();
                 break;
             default:
                 Debug.LogWarning($"Unknown Live2D trigger: {triggerName}", this);

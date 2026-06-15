@@ -23,6 +23,11 @@
 				{
 					"File": "Animation/3.motion3.json"
 				}
+			],
+			"Speak": [
+				{
+					"File": "Animation/1_Speak.motion3.json"
+				}
 			]
 		}
 	},

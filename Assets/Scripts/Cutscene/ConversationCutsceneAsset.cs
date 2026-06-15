@@ -23,6 +23,9 @@ public class ConversationLine
     [TextArea(2, 6)]
     public string text;
 
+    [Tooltip("Optional Live2D trigger to play when this line starts. Used by Clothos cutscene conversations. Examples: Speak, Idle, Trigger_1, Trigger_3.")]
+    public string live2DTriggerName = "Speak";
+
     public ConversationAdvanceMode advanceMode = ConversationAdvanceMode.Click;
 
     [Tooltip("Only used when Advance Mode is WaitForSignal.")]

@@ -24,6 +24,7 @@ public class BagUIController : MonoBehaviour
     [Header("Panel References")]
     [SerializeField] private GameObject bagPanel;
     [SerializeField] private GameObject creationPanel;
+    [SerializeField] private Canvas live2DCanvas;
 
     [Header("Cafe Inventory Grid")]
     [SerializeField] private GameObject cafeSlotGrid;
@@ -183,6 +184,9 @@ public class BagUIController : MonoBehaviour
         if (cafeSlotGrid != null)
             cafeSlotGrid.SetActive(false);
 
+        if (live2DCanvas != null)
+            live2DCanvas.enabled = false;
+
         RefreshBag();
         ClearInspect();
         TutorialSignalUtility.SendTutorialSignalOnce(cutsceneController, openBagSignalId, ref hasSentOpenBagSignal);
@@ -210,6 +214,9 @@ public class BagUIController : MonoBehaviour
 
         if (cafeSlotGrid != null)
             cafeSlotGrid.SetActive(true);
+        
+        if (live2DCanvas != null)
+            live2DCanvas.enabled = true;
 
         RefreshCafeSlots();
     }

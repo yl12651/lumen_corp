@@ -20,6 +20,7 @@ MonoBehaviour:
     portrait: {fileID: 21300000, guid: 90de8a25fb68de34eb030b5fda298349, type: 3}
     text: Welcome to Lumen Corp. Before the cafe opens, we need to understand who
       will be working here.
+    live2DTriggerName: Speak
     advanceMode: 0
     requiredSignalId: 
     hideCanvasWhileWaitingForSignal: 0
@@ -28,6 +29,7 @@ MonoBehaviour:
   - speakerName: Clothos
     portrait: {fileID: 21300000, guid: 90de8a25fb68de34eb030b5fda298349, type: 3}
     text: You will create characters by shaping their personalities with six sliders.
+    live2DTriggerName: Speak
     advanceMode: 0
     requiredSignalId: 
     hideCanvasWhileWaitingForSignal: 0
@@ -37,6 +39,7 @@ MonoBehaviour:
     portrait: {fileID: 21300000, guid: 90de8a25fb68de34eb030b5fda298349, type: 3}
     text: After that, you will assign them to cafe positions and see how their choices
       affect the final conversation.
+    live2DTriggerName: Speak
     advanceMode: 0
     requiredSignalId: 
     hideCanvasWhileWaitingForSignal: 0
@@ -45,6 +48,7 @@ MonoBehaviour:
   - speakerName: Clothos
     portrait: {fileID: 21300000, guid: 90de8a25fb68de34eb030b5fda298349, type: 3}
     text: Let's begin!
+    live2DTriggerName: Speak
     advanceMode: 0
     requiredSignalId: 
     hideCanvasWhileWaitingForSignal: 0
@@ -54,6 +58,7 @@ MonoBehaviour:
     portrait: {fileID: 21300000, guid: 90de8a25fb68de34eb030b5fda298349, type: 3}
     text: 'First try moving that slider! This one adjust how strongly the subject
       is drawn to new ideas, as well as unfamiliar situations. '
+    live2DTriggerName: Speak
     advanceMode: 1
     requiredSignalId: curiosity_slider_changed
     hideCanvasWhileWaitingForSignal: 0
@@ -72,6 +77,7 @@ MonoBehaviour:
   - speakerName: Clothos
     portrait: {fileID: 21300000, guid: 90de8a25fb68de34eb030b5fda298349, type: 3}
     text: Now try hitting that create button and see what we got!
+    live2DTriggerName: Speak
     advanceMode: 0
     requiredSignalId: 
     hideCanvasWhileWaitingForSignal: 0
@@ -80,6 +86,7 @@ MonoBehaviour:
   - speakerName: Clothos
     portrait: {fileID: 21300000, guid: 90de8a25fb68de34eb030b5fda298349, type: 3}
     text: temp
+    live2DTriggerName: Speak
     advanceMode: 1
     requiredSignalId: create_triggered
     hideCanvasWhileWaitingForSignal: 1
@@ -100,6 +107,7 @@ MonoBehaviour:
     text: "Do they look cute to you? Please let it be yes ( \u2022\u0301\u032F ^
       \u2022\u0300\u032F) Add them to your inventory or click recreate to try some
       adjustments!"
+    live2DTriggerName: Trigger_3
     advanceMode: 0
     requiredSignalId: 
     hideCanvasWhileWaitingForSignal: 1
@@ -108,6 +116,7 @@ MonoBehaviour:
   - speakerName: Clothos
     portrait: {fileID: 21300000, guid: 90de8a25fb68de34eb030b5fda298349, type: 3}
     text: 
+    live2DTriggerName: Speak
     advanceMode: 1
     requiredSignalId: add_triggered
     hideCanvasWhileWaitingForSignal: 1
@@ -117,6 +126,7 @@ MonoBehaviour:
     portrait: {fileID: 21300000, guid: 90de8a25fb68de34eb030b5fda298349, type: 3}
     text: You just added your first character! ICYMI, you can view all you've got
       here.
+    live2DTriggerName: Speak
     advanceMode: 1
     requiredSignalId: bag_triggered
     hideCanvasWhileWaitingForSignal: 0
@@ -137,6 +147,7 @@ MonoBehaviour:
     text: Yay! Here she is! Do remember you can bring up to 8 staff with you at once.
       When you are ready creating at least 6 characters, let's get ready to open
       up the cafe!
+    live2DTriggerName: Speak
     advanceMode: 0
     requiredSignalId: 
     hideCanvasWhileWaitingForSignal: 0
@@ -145,6 +156,7 @@ MonoBehaviour:
   - speakerName: Clothos
     portrait: {fileID: 21300000, guid: 90de8a25fb68de34eb030b5fda298349, type: 3}
     text: 
+    live2DTriggerName: Speak
     advanceMode: 1
     requiredSignalId: not_enough_triggered
     hideCanvasWhileWaitingForSignal: 1
@@ -154,6 +166,7 @@ MonoBehaviour:
     portrait: {fileID: 21300000, guid: 90de8a25fb68de34eb030b5fda298349, type: 3}
     text: Hey that is not enough staff to run our cafe :( Please please let's at
       least bring 6 of them cuties!
+    live2DTriggerName: Speak
     advanceMode: 0
     requiredSignalId: 
     hideCanvasWhileWaitingForSignal: 0
@@ -162,6 +175,7 @@ MonoBehaviour:
   - speakerName: Clothos
     portrait: {fileID: 21300000, guid: 90de8a25fb68de34eb030b5fda298349, type: 3}
     text: EOF
+    live2DTriggerName: Speak
     advanceMode: 1
     requiredSignalId: EOF
     hideCanvasWhileWaitingForSignal: 1

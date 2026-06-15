@@ -67,6 +67,10 @@ public class CharacterSelector : MonoBehaviour
     [SerializeField] private ConversationCutsceneController cutsceneController;
     [SerializeField] private string createSignalId = "create_triggered";
     [SerializeField] private string addSignalId = "add_triggered";
+    
+    [Header("Live2D")]
+    [SerializeField] private Live2DMotionTrigger clothosMotionTrigger;
+    [SerializeField] private Canvas live2DCanvas;
 
     private CharacterDatabase database;
     private Dictionary<string, Sprite> spriteLookup = new Dictionary<string, Sprite>();
@@ -227,6 +231,7 @@ public class CharacterSelector : MonoBehaviour
                 characterImage.sprite = sprite;
                 characterImage.preserveAspect = true;
                 resultUIPanel.SetActive(true);
+                live2DCanvas.enabled = false;
             }
             else
             {
@@ -257,12 +262,22 @@ public class CharacterSelector : MonoBehaviour
         }
 
         Debug.Log($"Added subject to bag: {subject.type}");
-        resultUIPanel.SetActive(false);
+        HideResult();
         TutorialSignalUtility.SendTutorialSignalOnce(cutsceneController, addSignalId, ref hasSentAddSignal);
     }
 
     public void HideResult()
     {
         resultUIPanel.SetActive(false);
+        live2DCanvas.enabled = true;
+        TriggerLive2DAnimation("Trigger_3");
+    }
+
+    private void TriggerLive2DAnimation(string animationName)
+    {
+        if (clothosMotionTrigger == null)
+            clothosMotionTrigger = FindFirstObjectByType<Live2DMotionTrigger>();
+        if (clothosMotionTrigger != null)
+            clothosMotionTrigger.PlayTriggerByName(animationName);
     }
 }

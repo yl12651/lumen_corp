@@ -1,5 +1,6 @@
 ﻿using TMPro;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 public class ConversationCutsceneController : MonoBehaviour
@@ -15,9 +16,15 @@ public class ConversationCutsceneController : MonoBehaviour
     [SerializeField] private Image portraitImage;
     [SerializeField] private Button advanceButton;
     [SerializeField] private GameObject continueIndicator;
-    [SerializeField] private Canvas canvasToHideWhenWaitingForSignal;
+    [SerializeField] private Canvas[] canvasToHideWhenWaitingForSignal;
     [SerializeField] private ConversationTutorialMiddleware tutorialMiddleware;
     [SerializeField] private SceneAsyncLoader sceneAsyncLoader;
+
+    [Header("Live2D")]
+    [SerializeField] private Live2DMotionTrigger clothosMotionTrigger;
+    [SerializeField] private string clothosSpeakerName = "Clothos";
+    [FormerlySerializedAs("playClothosSpeakOnLineStart")]
+    [SerializeField] private bool playClothosLive2DTriggerOnLineStart = true;
 
     private int lineIndex;
     private bool waitingForSignal;
@@ -89,8 +96,28 @@ public class ConversationCutsceneController : MonoBehaviour
         if (continueIndicator != null)
             continueIndicator.SetActive(!waitingForSignal);
 
+        PlayClothosLive2DTriggerIfNeeded(line);
+
         if (tutorialMiddleware != null)
             tutorialMiddleware.HandleLineStarted(line);
+    }
+
+    private void PlayClothosLive2DTriggerIfNeeded(ConversationLine line)
+    {
+        if (!playClothosLive2DTriggerOnLineStart || line == null)
+            return;
+
+        if (!string.Equals(line.speakerName, clothosSpeakerName, System.StringComparison.OrdinalIgnoreCase))
+            return;
+
+        if (string.IsNullOrWhiteSpace(line.live2DTriggerName))
+            return;
+
+        if (clothosMotionTrigger == null)
+            clothosMotionTrigger = FindFirstObjectByType<Live2DMotionTrigger>();
+
+        if (clothosMotionTrigger != null)
+            clothosMotionTrigger.PlayTriggerByName(line.live2DTriggerName);
     }
 
     private void TryAdvanceFromClick()
@@ -126,8 +153,14 @@ public class ConversationCutsceneController : MonoBehaviour
 
     private void SetWaitingCanvasVisible(bool isVisible)
     {
-        if (canvasToHideWhenWaitingForSignal != null)
-            canvasToHideWhenWaitingForSignal.enabled = isVisible;
+        if (canvasToHideWhenWaitingForSignal == null)
+            return;
+
+        foreach (Canvas canvas in canvasToHideWhenWaitingForSignal)
+        {
+            if (canvas != null)
+                canvas.enabled = isVisible;
+        }
     }
 
     private void LoadNextScene()
