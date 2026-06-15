@@ -9,7 +9,9 @@ public class AssignmentDropPanel : MonoBehaviour, IDropHandler, IBeginDragHandle
     
     [Header("Panel Identity")]
     [SerializeField] private string panelName;
+    [SerializeField] private string slotKey;
     public string PanelName => panelName;
+    public string SlotKey => !string.IsNullOrEmpty(slotKey) ? slotKey : "panel:" + GetInstanceID();
 
     private BagUIController controller;
 
@@ -26,6 +28,11 @@ public class AssignmentDropPanel : MonoBehaviour, IDropHandler, IBeginDragHandle
     {
         controller = bagUIController;
         RefreshDisplay();
+    }
+
+    public bool RepresentsSlot(string assignmentSlotKey)
+    {
+        return SlotKey == assignmentSlotKey;
     }
 
     public void OnDrop(PointerEventData eventData)

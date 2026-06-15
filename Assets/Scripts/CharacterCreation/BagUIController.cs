@@ -74,9 +74,12 @@ public class BagUIController : MonoBehaviour
     private Dictionary<string, Sprite> spriteLookup = new Dictionary<string, Sprite>();
     private Dictionary<string, Sprite> assignmentWorldSpriteLookup = new Dictionary<string, Sprite>();
 
-    // Key = inventory index in GameSession.
-    // Value = the assignment panel currently holding that character.
-    private Dictionary<int, AssignmentDropPanel> assignedLookup = new Dictionary<int, AssignmentDropPanel>();
+    // Key = inventory index in GameSession. Value = the logical assignment slot holding it.
+    private Dictionary<int, string> assignedSlotByInventoryIndex = new Dictionary<int, string>();
+    // Key = logical assignment slot. Value = the assigned inventory index in GameSession.
+    private Dictionary<string, int> assignedInventoryIndexBySlot = new Dictionary<string, int>();
+    // Key = logical assignment slot. Value = every UI view that mirrors that assignment slot.
+    private Dictionary<string, List<AssignmentDropPanel>> assignmentPanelsBySlot = new Dictionary<string, List<AssignmentDropPanel>>();
 
     private int currentDisplayIndex = -1;
     private int currentCatalogPreviewIndex = -1;
@@ -100,11 +103,7 @@ public class BagUIController : MonoBehaviour
             cafeSlotUIs[i].Setup(this, i, SlotViewType.Cafe, true);
         }
 
-        foreach (AssignmentDropPanel panel in assignmentPanels)
-        {
-            if (panel != null)
-                panel.Setup(this);
-        }
+        RegisterAssignmentPanels();
 
         if (bagPanel != null)
             bagPanel.SetActive(false);
@@ -147,6 +146,29 @@ public class BagUIController : MonoBehaviour
             {
                 assignmentWorldSpriteLookup[entry.id] = entry.sprite;
             }
+        }
+    }
+
+    private void RegisterAssignmentPanels()
+    {
+        assignmentPanelsBySlot.Clear();
+
+        foreach (AssignmentDropPanel panel in assignmentPanels)
+        {
+            if (panel == null)
+                continue;
+
+            panel.Setup(this);
+
+            string slotKey = panel.SlotKey;
+            if (!assignmentPanelsBySlot.TryGetValue(slotKey, out List<AssignmentDropPanel> panelsForSlot))
+            {
+                panelsForSlot = new List<AssignmentDropPanel>();
+                assignmentPanelsBySlot[slotKey] = panelsForSlot;
+            }
+
+            if (!panelsForSlot.Contains(panel))
+                panelsForSlot.Add(panel);
         }
     }
 
@@ -437,8 +459,46 @@ public class BagUIController : MonoBehaviour
         foreach (AssignmentDropPanel panel in assignmentPanels)
         {
             if (panel != null)
-                panel.RefreshDisplay();
+                RefreshAssignmentPanel(panel);
         }
+    }
+
+    private void RefreshAssignmentSlot(string slotKey)
+    {
+        if (string.IsNullOrEmpty(slotKey))
+            return;
+
+        if (!assignmentPanelsBySlot.TryGetValue(slotKey, out List<AssignmentDropPanel> panelsForSlot))
+            return;
+
+        foreach (AssignmentDropPanel panel in panelsForSlot)
+        {
+            if (panel != null)
+                RefreshAssignmentPanel(panel);
+        }
+    }
+
+    private void RefreshAssignmentPanel(AssignmentDropPanel panel)
+    {
+        if (panel == null)
+            return;
+
+        if (!assignedInventoryIndexBySlot.TryGetValue(panel.SlotKey, out int inventoryIndex))
+        {
+            panel.ClearAssignedWithoutNotify();
+            return;
+        }
+
+        CharacterDefinition subject = GetSubjectAtInventoryIndex(inventoryIndex);
+        Sprite sprite = GetSpriteAtInventoryIndex(inventoryIndex);
+
+        if (subject == null)
+        {
+            panel.ClearAssignedWithoutNotify();
+            return;
+        }
+
+        panel.SetAssigned(inventoryIndex, subject, sprite);
     }
 
     private void RefreshAssignmentWorldObjects()
@@ -594,34 +654,31 @@ public class BagUIController : MonoBehaviour
 
     private void RebuildAssignmentsAfterInventoryRemove(int removedIndex)
     {
-        Dictionary<int, AssignmentDropPanel> rebuilt = new Dictionary<int, AssignmentDropPanel>();
+        Dictionary<int, string> rebuiltSlotByInventoryIndex = new Dictionary<int, string>();
+        Dictionary<string, int> rebuiltInventoryIndexBySlot = new Dictionary<string, int>();
 
-        foreach (KeyValuePair<int, AssignmentDropPanel> pair in assignedLookup)
+        foreach (KeyValuePair<string, int> pair in assignedInventoryIndexBySlot)
         {
-            int oldIndex = pair.Key;
-            AssignmentDropPanel panel = pair.Value;
-
-            if (panel == null)
-                continue;
+            string slotKey = pair.Key;
+            int oldIndex = pair.Value;
 
             if (oldIndex == removedIndex)
-            {
-                panel.ClearAssignedWithoutNotify();
                 continue;
-            }
 
             int newIndex = oldIndex > removedIndex ? oldIndex - 1 : oldIndex;
-            rebuilt[newIndex] = panel;
-            panel.SetAssignedInventoryIndexWithoutNotify(newIndex);
+            rebuiltSlotByInventoryIndex[newIndex] = slotKey;
+            rebuiltInventoryIndexBySlot[slotKey] = newIndex;
         }
 
-        assignedLookup = rebuilt;
+        assignedSlotByInventoryIndex = rebuiltSlotByInventoryIndex;
+        assignedInventoryIndexBySlot = rebuiltInventoryIndexBySlot;
+        RefreshAssignmentPanels();
         RefreshAssignmentWorldObjects();
     }
 
     public bool IsInventoryIndexAssigned(int inventoryIndex)
     {
-        return assignedLookup.ContainsKey(inventoryIndex);
+        return assignedSlotByInventoryIndex.ContainsKey(inventoryIndex);
     }
 
     public CharacterDefinition GetSubjectAtInventoryIndex(int inventoryIndex)
@@ -646,31 +703,36 @@ public class BagUIController : MonoBehaviour
         if (targetPanel == null)
             return;
 
+        string targetSlotKey = targetPanel.SlotKey;
+
+        if (string.IsNullOrEmpty(targetSlotKey))
+            return;
+
         CharacterDefinition subject = GameSession.Instance.GetSubjectAt(inventoryIndex);
 
         if (subject == null)
             return;
 
-        // If this target panel already has someone, return that character first.
-        int existingIndexInTarget = targetPanel.AssignedInventoryIndex;
-        if (existingIndexInTarget >= 0)
+        // If this target slot already has someone else, return that character first.
+        if (assignedInventoryIndexBySlot.TryGetValue(targetSlotKey, out int existingIndexInTarget)
+            && existingIndexInTarget != inventoryIndex)
         {
             ReturnInventoryIndexFromAssignment(existingIndexInTarget);
         }
 
-        // If this character is already assigned to another panel, clear that old panel.
-        if (assignedLookup.TryGetValue(inventoryIndex, out AssignmentDropPanel oldPanel))
+        // If this character is already assigned to another slot, clear that old slot.
+        if (assignedSlotByInventoryIndex.TryGetValue(inventoryIndex, out string oldSlotKey)
+            && oldSlotKey != targetSlotKey)
         {
-            if (oldPanel != null)
-                oldPanel.ClearAssignedWithoutNotify();
-
-            assignedLookup.Remove(inventoryIndex);
+            assignedInventoryIndexBySlot.Remove(oldSlotKey);
+            assignedSlotByInventoryIndex.Remove(inventoryIndex);
+            RefreshAssignmentSlot(oldSlotKey);
         }
 
-        assignedLookup[inventoryIndex] = targetPanel;
+        assignedSlotByInventoryIndex[inventoryIndex] = targetSlotKey;
+        assignedInventoryIndexBySlot[targetSlotKey] = inventoryIndex;
 
-        Sprite sprite = GetSpriteForSubject(subject);
-        targetPanel.SetAssigned(inventoryIndex, subject, sprite);
+        RefreshAssignmentSlot(targetSlotKey);
 
         RefreshCafeSlots();
         RefreshAssignmentWorldObjects();
@@ -678,12 +740,17 @@ public class BagUIController : MonoBehaviour
 
     public void ReturnInventoryIndexFromAssignment(int inventoryIndex)
     {
-        if (assignedLookup.TryGetValue(inventoryIndex, out AssignmentDropPanel panel))
+        if (assignedSlotByInventoryIndex.TryGetValue(inventoryIndex, out string slotKey))
         {
-            if (panel != null)
-                panel.ClearAssignedWithoutNotify();
+            assignedSlotByInventoryIndex.Remove(inventoryIndex);
 
-            assignedLookup.Remove(inventoryIndex);
+            if (assignedInventoryIndexBySlot.TryGetValue(slotKey, out int assignedInventoryIndex)
+                && assignedInventoryIndex == inventoryIndex)
+            {
+                assignedInventoryIndexBySlot.Remove(slotKey);
+            }
+
+            RefreshAssignmentSlot(slotKey);
         }
 
         RefreshCafeSlots();

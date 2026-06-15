@@ -78,9 +78,14 @@ public class CafeSimulationSubmit : MonoBehaviour
             return true;
         }
 
+        HashSet<string> validatedAssignmentSlots = new HashSet<string>();
+
         foreach (AssignmentDropPanel panel in assignmentPanels)
         {
             if (panel == null)
+                continue;
+
+            if (!validatedAssignmentSlots.Add(panel.SlotKey))
                 continue;
 
             if (!panel.HasAssignedCharacter)
@@ -162,9 +167,14 @@ public class CafeSimulationSubmit : MonoBehaviour
             request.pairs.Add(pairPayload);
         }
 
+        HashSet<string> submittedAssignmentSlots = new HashSet<string>();
+
         foreach (AssignmentDropPanel panel in assignmentPanels)
         {
             if (panel == null)
+                continue;
+
+            if (!submittedAssignmentSlots.Add(panel.SlotKey))
                 continue;
 
             AssignmentPayload assignment = new AssignmentPayload
