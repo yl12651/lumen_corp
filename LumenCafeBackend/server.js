@@ -10,6 +10,8 @@ dotenv.config();
 
 const openaiModel = process.env.OPENAI_MODEL || "gpt-5.4-mini";
 const openaiTimeoutMs = Number(process.env.OPENAI_TIMEOUT_MS || 180000);
+const simulationMaxOutputTokens =
+  Number(process.env.CAFE_SIMULATION_MAX_OUTPUT_TOKENS) || 4500;
 const useDebugSimulationResponse =
   process.env.CAFE_DEBUG_SIMULATION_RESPONSE === "true";
 const useDebugRetentionReviewResponse =
@@ -317,7 +319,7 @@ app.post("/api/simulate", async (req, res) => {
       .replace("{{ASSIGNMENTS}}", pairsText);
 
     console.log(
-      `[CafeBackend] Sending OpenAI request. model=${openaiModel}, timeoutMs=${openaiTimeoutMs}, promptChars=${finalPrompt.length}`
+      `[CafeBackend] Sending OpenAI request. model=${openaiModel}, timeoutMs=${openaiTimeoutMs}, maxOutputTokens=${simulationMaxOutputTokens}, promptChars=${finalPrompt.length}`
     );
 
     const startedAt = Date.now();
@@ -325,7 +327,7 @@ app.post("/api/simulate", async (req, res) => {
     const response = await openai.responses.create({
       model: openaiModel,
       input: finalPrompt,
-      max_output_tokens: 2500,
+      max_output_tokens: simulationMaxOutputTokens,
     }, {
       timeout: openaiTimeoutMs,
     });
