@@ -1,0 +1,96 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5fa92c1ac281497086f905a3a552828e, type: 3}
+  m_Name: CafeConversation
+  m_EditorClassIdentifier: Assembly-CSharp::ConversationCutsceneAsset
+  title: 
+  nextSceneName: 
+  defaultPortrait: {fileID: 21300000, guid: 90de8a25fb68de34eb030b5fda298349, type: 3}
+  lines:
+  - speakerName: Clothos
+    portrait: {fileID: 0}
+    text: Read the counter conversation.
+    live2DTriggerName: 
+    advanceMode: 1
+    requiredSignalId: read_counter
+    hideCanvasWhileWaitingForSignal: 1
+    startActions: []
+    endActions: []
+  - speakerName: Clothos
+    portrait: {fileID: 0}
+    text: Read the bar conversation.
+    live2DTriggerName: 
+    advanceMode: 1
+    requiredSignalId: read_bar
+    hideCanvasWhileWaitingForSignal: 0
+    startActions: []
+    endActions: []
+  - speakerName: Clothos
+    portrait: {fileID: 0}
+    text: Read the floor conversation.
+    live2DTriggerName: 
+    advanceMode: 1
+    requiredSignalId: read_floor
+    hideCanvasWhileWaitingForSignal: 0
+    startActions: []
+    endActions: []
+  - speakerName: Clothos
+    portrait: {fileID: 0}
+    text: So. You listened to all three little workplace incidents.
+    live2DTriggerName: 
+    advanceMode: 0
+    requiredSignalId: 
+    hideCanvasWhileWaitingForSignal: 0
+    startActions: []
+    endActions: []
+  - speakerName: Clothos
+    portrait: {fileID: 0}
+    text: Now comes the useful part. Tell me which subjects should remain in their
+      assigned positions.
+    live2DTriggerName: 
+    advanceMode: 0
+    requiredSignalId: 
+    hideCanvasWhileWaitingForSignal: 1
+    startActions: []
+    endActions: []
+  - speakerName: Clothos
+    portrait: {fileID: 0}
+    text: Be honest. I will be professional about judging them. Probably.
+    live2DTriggerName: 
+    advanceMode: 0
+    requiredSignalId: 
+    hideCanvasWhileWaitingForSignal: 1
+    startActions: []
+    endActions: []
+  - speakerName: Clothos
+    portrait: {fileID: 0}
+    text: 
+    live2DTriggerName: 
+    advanceMode: 1
+    requiredSignalId: retention_selection_submitted
+    hideCanvasWhileWaitingForSignal: 1
+    startActions:
+    - actionType: 5
+      targetId: 
+      signalId: open_retention_selection
+      duration: 0
+      clearPreviousHighlights: 0
+    endActions: []
+  - speakerName: Clothos
+    portrait: {fileID: 0}
+    text: EOF
+    live2DTriggerName: 
+    advanceMode: 1
+    requiredSignalId: EOF
+    hideCanvasWhileWaitingForSignal: 1
+    startActions: []
+    endActions: []

@@ -10,6 +10,10 @@ dotenv.config();
 
 const openaiModel = process.env.OPENAI_MODEL || "gpt-5.4-mini";
 const openaiTimeoutMs = Number(process.env.OPENAI_TIMEOUT_MS || 180000);
+const useDebugSimulationResponse =
+  process.env.CAFE_DEBUG_SIMULATION_RESPONSE === "true";
+const useDebugRetentionReviewResponse =
+  process.env.CAFE_DEBUG_RETENTION_REVIEW_RESPONSE === "true";
 
 const app = express();
 app.use(cors());
@@ -26,6 +30,11 @@ const __dirname = path.dirname(__filename);
 
 function loadPromptTemplate() {
   const promptPath = path.join(__dirname, "prompts", "cafe_prompt.md");
+  return fs.readFileSync(promptPath, "utf8");
+}
+
+function loadRetentionReviewPromptTemplate() {
+  const promptPath = path.join(__dirname, "prompts", "retention_review_prompt.md");
   return fs.readFileSync(promptPath, "utf8");
 }
 
@@ -126,9 +135,180 @@ function buildPairsText(pairs, assignments) {
     .join("\n\n");
 }
 
+function getPairSubject(pair, subjectIndex) {
+  const subjects = Array.isArray(pair?.subjects) ? pair.subjects : [];
+  return subjects[subjectIndex] || null;
+}
+
+function getSubjectId(pairSubject, fallbackId) {
+  return pairSubject?.subject?.id || fallbackId;
+}
+
+function getSubjectType(pairSubject) {
+  return pairSubject?.subject?.type || "Unassigned Subject";
+}
+
+function getSpeakerKey(pairSubject, fallbackSpeakerKey) {
+  return pairSubject?.speakerKey || fallbackSpeakerKey;
+}
+
+function buildSelectedSubject(pairSubject, fallbackSpeakerKey, position, fallbackId) {
+  return {
+    speakerKey: getSpeakerKey(pairSubject, fallbackSpeakerKey),
+    position,
+    id: getSubjectId(pairSubject, fallbackId),
+    type: getSubjectType(pairSubject),
+  };
+}
+
+function buildDebugConversation(pair, index) {
+  const pairKey = pair?.pairKey || `pair-${index + 1}`;
+  const position = pair?.position || `Position ${index + 1}`;
+  const firstSubject = getPairSubject(pair, 0);
+  const secondSubject = getPairSubject(pair, 1);
+  const firstSpeakerKey = getSpeakerKey(firstSubject, `${pairKey}:a`);
+  const secondSpeakerKey = getSpeakerKey(secondSubject, `${pairKey}:b`);
+  const firstId = getSubjectId(firstSubject, "Subject A");
+  const secondId = getSubjectId(secondSubject, "Subject B");
+  const firstType = getSubjectType(firstSubject);
+  const secondType = getSubjectType(secondSubject);
+
+  return {
+    pairKey,
+    position,
+    selectedPair: [
+      buildSelectedSubject(firstSubject, firstSpeakerKey, position, firstId),
+      buildSelectedSubject(secondSubject, secondSpeakerKey, position, secondId),
+    ],
+    sceneTitle: `Debug Shift at ${position}`,
+    context:
+      `Debug response: ${firstId} and ${secondId} are working ${position}. ` +
+      "This conversation was generated locally by the backend test path.",
+    bubbles: [
+      {
+        speakerKey: firstSpeakerKey,
+        speakerId: firstId,
+        position,
+        text: `I am ${firstId}, a ${firstType}, and this is a fast debug conversation for ${position}.`,
+      },
+      {
+        speakerKey: secondSpeakerKey,
+        speakerId: secondId,
+        position,
+        text: `I am ${secondId}, a ${secondType}. No OpenAI request was made for this one.`,
+      },
+      {
+        speakerKey: firstSpeakerKey,
+        speakerId: firstId,
+        position,
+        text: "Good. That means the Unity ending flow can be tested without waiting.",
+      },
+      {
+        speakerKey: secondSpeakerKey,
+        speakerId: secondId,
+        position,
+        text: "After this ends, our pair should stop jumping while the unread pairs keep moving.",
+      },
+    ],
+  };
+}
+
+function buildDebugSimulationResponse(pairs) {
+  const sourcePairs = Array.isArray(pairs) && pairs.length > 0
+    ? pairs
+    : [
+        { pairKey: "counter", position: "Counter" },
+        { pairKey: "bar", position: "Barista" },
+        { pairKey: "floor", position: "Floor" },
+      ];
+
+  return {
+    conversations: sourcePairs.map(buildDebugConversation),
+  };
+}
+
+function normalizeRetentionSelections(selections) {
+  return Array.isArray(selections) ? selections : [];
+}
+
+function formatRetentionSelection(selection, index) {
+  const subject = selection?.subject;
+  const positionName = selection?.positionName || selection?.position || "";
+  const shouldRemain = Boolean(selection?.shouldRemain);
+
+  return [
+    `Selection ${index + 1}`,
+    `Pair Key: ${selection?.pairKey || ""}`,
+    `Position: ${positionName}`,
+    `Slot: ${selection?.slot || ""}`,
+    `Speaker Key: ${selection?.speakerKey || ""}`,
+    `Player Decision: ${shouldRemain ? "KEEP" : "REMOVE"}`,
+    formatSubject(subject),
+  ].join("\n");
+}
+
+function buildRetentionSelectionsText(selections) {
+  const normalizedSelections = normalizeRetentionSelections(selections);
+
+  if (normalizedSelections.length === 0) {
+    return "No retention selections were submitted.";
+  }
+
+  return normalizedSelections
+    .map(formatRetentionSelection)
+    .join("\n\n");
+}
+
+function getSelectedRetentionSubjects(selections, shouldRemain) {
+  return normalizeRetentionSelections(selections)
+    .filter((selection) => Boolean(selection?.shouldRemain) === shouldRemain);
+}
+
+function buildDebugRetentionReviewResponse(selections) {
+  const keptSelections = getSelectedRetentionSubjects(selections, true);
+  const removedSelections = getSelectedRetentionSubjects(selections, false);
+  const firstKept = keptSelections[0];
+  const firstKeptType = firstKept?.subject?.type || "a mysteriously undocumented subject";
+  const firstKeptPosition = firstKept?.positionName || firstKept?.position || "an undefined position";
+
+  return {
+    title: "Retention Review",
+    lines: [
+      {
+        speakerName: "Clothos",
+        text: "Thank you. I have reviewed your retention proposal with the warmth and flexibility expected from Human Resources.",
+        live2DTriggerName: "Speak",
+      },
+      {
+        speakerName: "Clothos",
+        text: `You selected ${keptSelections.length} subject(s) to remain and ${removedSelections.length} subject(s) to quietly become someone else's problem.`,
+        live2DTriggerName: "Speak",
+      },
+      {
+        speakerName: "Clothos",
+        text: `For example, keeping ${firstKeptType} at ${firstKeptPosition} is a decision. Not necessarily a good decision, but certainly one with paperwork attached.`,
+        live2DTriggerName: "Speak",
+      },
+      {
+        speakerName: "Clothos",
+        text: "This is a debug retention review. No OpenAI request was made, so please imagine the institutional bias at full resolution.",
+        live2DTriggerName: "Speak",
+      },
+    ],
+  };
+}
+
 app.post("/api/simulate", async (req, res) => {
   try {
     const { pairs, assignments } = req.body;
+
+    if (useDebugSimulationResponse) {
+      console.log("[CafeBackend] Returning debug simulation response. OpenAI request skipped.");
+      res.json({
+        text: JSON.stringify(buildDebugSimulationResponse(pairs), null, 2),
+      });
+      return;
+    }
 
     const template = loadPromptTemplate();
     const pairsText = buildPairsText(pairs, assignments);
@@ -159,6 +339,49 @@ app.post("/api/simulate", async (req, res) => {
     console.error(error);
     res.status(500).json({
       error: "Failed to simulate cafe ending.",
+    });
+  }
+});
+
+app.post("/api/retention-review", async (req, res) => {
+  try {
+    const { selections } = req.body;
+
+    if (useDebugRetentionReviewResponse) {
+      console.log("[CafeBackend] Returning debug retention review response. OpenAI request skipped.");
+      res.json({
+        text: JSON.stringify(buildDebugRetentionReviewResponse(selections), null, 2),
+      });
+      return;
+    }
+
+    const template = loadRetentionReviewPromptTemplate();
+    const selectionsText = buildRetentionSelectionsText(selections);
+    const finalPrompt = template.replace("{{SELECTIONS}}", selectionsText);
+
+    console.log(
+      `[CafeBackend] Sending retention review OpenAI request. model=${openaiModel}, timeoutMs=${openaiTimeoutMs}, promptChars=${finalPrompt.length}`
+    );
+
+    const startedAt = Date.now();
+
+    const response = await openai.responses.create({
+      model: openaiModel,
+      input: finalPrompt,
+      max_output_tokens: 1600,
+    }, {
+      timeout: openaiTimeoutMs,
+    });
+
+    console.log(`[CafeBackend] Retention review response received in ${Date.now() - startedAt}ms`);
+
+    res.json({
+      text: response.output_text,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      error: "Failed to generate retention review.",
     });
   }
 });

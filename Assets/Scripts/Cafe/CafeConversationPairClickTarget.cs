@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class CafeConversationPairClickTarget : MonoBehaviour
 {
@@ -16,6 +17,9 @@ public class CafeConversationPairClickTarget : MonoBehaviour
 
     private void OnMouseDown()
     {
+        if (IsPointerOverUi())
+            return;
+
         PlayConversation();
     }
 
@@ -34,5 +38,16 @@ public class CafeConversationPairClickTarget : MonoBehaviour
         }
 
         conversationSetController.PlayPair(pairKey);
+    }
+
+    private bool IsPointerOverUi()
+    {
+        if (EventSystem.current == null)
+            return false;
+
+        if (Input.touchCount > 0)
+            return EventSystem.current.IsPointerOverGameObject(Input.GetTouch(0).fingerId);
+
+        return EventSystem.current.IsPointerOverGameObject();
     }
 }

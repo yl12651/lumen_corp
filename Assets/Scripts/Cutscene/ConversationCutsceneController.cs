@@ -3,6 +3,12 @@ using UnityEngine;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
 
+public enum ConversationCutsceneFinishAction
+{
+    LoadNextScene,
+    HideCanvases
+}
+
 public class ConversationCutsceneController : MonoBehaviour
 {
     [Header("Data")]
@@ -19,6 +25,9 @@ public class ConversationCutsceneController : MonoBehaviour
     [SerializeField] private Canvas[] canvasToHideWhenWaitingForSignal;
     [SerializeField] private ConversationTutorialMiddleware tutorialMiddleware;
     [SerializeField] private SceneAsyncLoader sceneAsyncLoader;
+
+    [Header("End")]
+    [SerializeField] private ConversationCutsceneFinishAction finishAction = ConversationCutsceneFinishAction.LoadNextScene;
 
     [Header("Live2D")]
     [SerializeField] private Live2DMotionTrigger clothosMotionTrigger;
@@ -151,6 +160,11 @@ public class ConversationCutsceneController : MonoBehaviour
         return true;
     }
 
+    public void SetFinishAction(ConversationCutsceneFinishAction action)
+    {
+        finishAction = action;
+    }
+
     private void SetWaitingCanvasVisible(bool isVisible)
     {
         if (canvasToHideWhenWaitingForSignal == null)
@@ -165,8 +179,26 @@ public class ConversationCutsceneController : MonoBehaviour
 
     private void LoadNextScene()
     {
+        if (finishAction == ConversationCutsceneFinishAction.HideCanvases)
+        {
+            HideCanvases();
+            return;
+        }
+
         if (cutscene != null && !string.IsNullOrWhiteSpace(cutscene.nextSceneName))
             LoadSceneAsync(cutscene.nextSceneName);
+    }
+
+    private void HideCanvases()
+    {
+        SetWaitingCanvasVisible(false);
+
+        Canvas ownCanvas = GetComponentInParent<Canvas>();
+
+        if (ownCanvas != null)
+            ownCanvas.enabled = false;
+        else
+            gameObject.SetActive(false);
     }
 
     private void LoadSceneAsync(string sceneName)

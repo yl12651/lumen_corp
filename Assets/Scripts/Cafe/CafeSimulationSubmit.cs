@@ -15,6 +15,19 @@ public class CafeCoworkerPair
     public AssignmentDropPanel secondPanel;
 }
 
+[Serializable]
+public class CafeAssignedSubjectSelection
+{
+    public string pairKey;
+    public string positionName;
+    public string slot;
+    public string speakerKey;
+    public string assignmentSlotKey;
+    public int inventoryIndex;
+    public CharacterDefinition subject;
+    public Sprite sprite;
+}
+
 public class CafeSimulationSubmit : MonoBehaviour
 {
     [Header("Assignments")]
@@ -57,6 +70,25 @@ public class CafeSimulationSubmit : MonoBehaviour
 
         CafeSimulationRequest requestData = BuildRequestData();
         StartCoroutine(SendAssignmentsToBackend(requestData));
+    }
+
+    public List<CafeAssignedSubjectSelection> BuildAssignedSubjectSelections()
+    {
+        List<CafeAssignedSubjectSelection> selections = new List<CafeAssignedSubjectSelection>();
+
+        for (int i = 0; i < coworkerPairs.Count; i++)
+        {
+            CafeCoworkerPair pair = coworkerPairs[i];
+
+            if (pair == null)
+                continue;
+
+            string pairKey = GetPairKey(pair, i);
+            AddAssignedSubjectSelection(selections, pairKey, pair.positionName, "a", pair.firstPanel);
+            AddAssignedSubjectSelection(selections, pairKey, pair.positionName, "b", pair.secondPanel);
+        }
+
+        return selections;
     }
 
     private bool AllPanelsAssigned()
@@ -213,6 +245,30 @@ public class CafeSimulationSubmit : MonoBehaviour
             position = position,
             subject = subject
         };
+    }
+
+    private void AddAssignedSubjectSelection(
+        List<CafeAssignedSubjectSelection> selections,
+        string pairKey,
+        string positionName,
+        string slot,
+        AssignmentDropPanel panel
+    )
+    {
+        if (panel == null || !panel.HasAssignedCharacter)
+            return;
+
+        selections.Add(new CafeAssignedSubjectSelection
+        {
+            pairKey = pairKey,
+            positionName = positionName,
+            slot = slot,
+            speakerKey = pairKey + ":" + slot,
+            assignmentSlotKey = panel.SlotKey,
+            inventoryIndex = panel.AssignedInventoryIndex,
+            subject = panel.AssignedSubject,
+            sprite = panel.AssignedSprite
+        });
     }
 
     private IEnumerator SendAssignmentsToBackend(CafeSimulationRequest requestData)

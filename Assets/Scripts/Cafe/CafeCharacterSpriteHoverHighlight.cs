@@ -3,6 +3,7 @@ using UnityEngine;
 public class CafeCharacterSpriteHoverHighlight : MonoBehaviour
 {
     [SerializeField] private Outline outline;
+    [SerializeField] private CafeCharacterPairHoverGroup pairHoverGroup;
 
     private void Awake()
     {
@@ -12,17 +13,26 @@ public class CafeCharacterSpriteHoverHighlight : MonoBehaviour
         if (outline == null)
             outline = GetComponentInChildren<Outline>();
 
+        if (pairHoverGroup == null)
+            pairHoverGroup = GetComponentInParent<CafeCharacterPairHoverGroup>();
+
         SetHighlighted(false);
     }
 
     private void OnMouseEnter()
     {
-        SetHighlighted(true);
+        if (pairHoverGroup != null)
+            pairHoverGroup.NotifyHoverEntered(this);
+        else
+            SetHighlighted(true);
     }
 
     private void OnMouseExit()
     {
-        SetHighlighted(false);
+        if (pairHoverGroup != null)
+            pairHoverGroup.NotifyHoverExited(this);
+        else
+            SetHighlighted(false);
     }
 
     public void SetHighlighted(bool highlighted)
