@@ -18,6 +18,103 @@ MonoBehaviour:
   lines:
   - speakerName: Clothos
     portrait: {fileID: 0}
+    text: Welcome to the cafe! The shift is not staffed yet, which means every future
+      problem is still technically preventable.
+    live2DTriggerName: Speak
+    advanceMode: 0
+    requiredSignalId: 
+    hideCanvasWhileWaitingForSignal: 0
+    startActions: []
+    endActions: []
+  - speakerName: Clothos
+    portrait: {fileID: 0}
+    text: Open the cafe bag, then drag subjects from the bag onto the assignment
+      panels. Each panel represents one place someone can work.
+    live2DTriggerName: Speak
+    advanceMode: 0
+    requiredSignalId: 
+    hideCanvasWhileWaitingForSignal: 0
+    startActions: []
+    endActions: []
+  - speakerName: Clothos
+    portrait: {fileID: 0}
+    text: 
+    live2DTriggerName: 
+    advanceMode: 1
+    requiredSignalId: cafe_assignment_made
+    hideCanvasWhileWaitingForSignal: 1
+    startActions:
+    - actionType: 1
+      targetId: cafe_bag
+      signalId: 
+      duration: 0
+      clearPreviousHighlights: 0
+    - actionType: 1
+      targetId: assignment_panel
+      signalId: 
+      duration: 0
+      clearPreviousHighlights: 0
+    endActions:
+    - actionType: 3
+      targetId: 
+      signalId: 
+      duration: 0
+      clearPreviousHighlights: 0
+  - speakerName: Clothos
+    portrait: {fileID: 0}
+    text: You can also open the schedule board. It shows the cafe positions in one
+      place, which is usually easier than judging the shift by memory and vibes.
+    live2DTriggerName: Speak
+    advanceMode: 0
+    requiredSignalId: 
+    hideCanvasWhileWaitingForSignal: 0
+    startActions: []
+    endActions: []
+  - speakerName: Clothos
+    portrait: {fileID: 0}
+    text: 
+    live2DTriggerName: 
+    advanceMode: 1
+    requiredSignalId: cafe_schedule_opened
+    hideCanvasWhileWaitingForSignal: 1
+    startActions:
+    - actionType: 1
+      targetId: schedule_button
+      signalId: 
+      duration: 0
+      clearPreviousHighlights: 0
+    endActions:
+    - actionType: 3
+      targetId: 
+      signalId: 
+      duration: 0
+      clearPreviousHighlights: 0
+  - speakerName: Clothos
+    portrait: {fileID: 0}
+    text: 
+    live2DTriggerName: 
+    advanceMode: 1
+    requiredSignalId: cafe_schedule_closed
+    hideCanvasWhileWaitingForSignal: 1
+    startActions: []
+    endActions:
+    - actionType: 3
+      targetId: 
+      signalId: 
+      duration: 0
+      clearPreviousHighlights: 0
+  - speakerName: Clothos
+    portrait: {fileID: 0}
+    text: When every position is set, click Submit! Then we can observe what your
+      staffing decisions do under pressure.
+    live2DTriggerName: Speak
+    advanceMode: 0
+    requiredSignalId: 
+    hideCanvasWhileWaitingForSignal: 0
+    startActions: []
+    endActions: []
+  - speakerName: Clothos
+    portrait: {fileID: 0}
     text: Read the counter conversation.
     live2DTriggerName: 
     advanceMode: 1

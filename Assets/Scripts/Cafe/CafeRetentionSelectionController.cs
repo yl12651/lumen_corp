@@ -11,6 +11,7 @@ using UnityEngine.UI;
 public class CafeRetentionSelectionController : MonoBehaviour
 {
     [SerializeField] private GameObject canvasRoot;
+    [SerializeField] private CafeUIDropInAnimator dropInAnimator;
     [SerializeField] private CafeSimulationSubmit simulationSubmitter;
     [SerializeField] private CafeConversationSetController conversationSetController;
     [SerializeField] private ConversationCutsceneController cutsceneController;
@@ -52,6 +53,9 @@ public class CafeRetentionSelectionController : MonoBehaviour
         if (cutsceneController == null)
             cutsceneController = FindFirstObjectByType<ConversationCutsceneController>();
 
+        if (dropInAnimator == null && canvasRoot != null)
+            dropInAnimator = canvasRoot.GetComponentInChildren<CafeUIDropInAnimator>(true);
+
         if (submitButton != null)
             submitButton.onClick.AddListener(SubmitSelection);
 
@@ -72,6 +76,9 @@ public class CafeRetentionSelectionController : MonoBehaviour
         selectedSpeakerKeys.Clear();
         RefreshFromAssignments();
         SetVisible(true);
+
+        if (dropInAnimator != null)
+            dropInAnimator.Play();
 
         if (conversationSetController != null)
             conversationSetController.SetPairInteractionLocked(true);

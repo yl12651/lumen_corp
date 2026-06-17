@@ -1,0 +1,147 @@
+{
+  "title": "Retention Review",
+  "fallbackLine": {
+    "speakerName": "Clothos",
+    "text": "Retention review complete. Your simulation shows a cooperative respect for temperament-position alignment. Human Resources appreciates decisions that require so little interpretive labor.",
+    "live2DTriggerName": "Speak"
+  },
+  "matchedEndingLine": {
+    "speakerName": "Clothos",
+    "text": "At least one of your decisions allowed personality type and job fit to fall out of alignment. Human Resources will mark your filtering process as requiring further review.",
+    "live2DTriggerName": "Speak"
+  },
+  "constraints": [
+    {
+      "id": "deny-inward-kept-counter",
+      "subjectIds": ["Inward"],
+      "subjectTypes": ["Subject-I"],
+      "positions": ["Counter"],
+      "shouldRemain": true,
+      "line": {
+        "speakerName": "Clothos",
+        "text": "You kept {subjectType} on {positionName}. I understand the appeal of quiet competence, but Counter is a visibility role. If confidence cannot be externally certified, Human Resources records it as customer exposure risk.",
+        "live2DTriggerName": "Speak"
+      }
+    },
+    {
+      "id": "object-logical-removed-barista",
+      "subjectIds": ["Logical"],
+      "subjectTypes": ["Subject-L"],
+      "positions": ["Barista"],
+      "shouldRemain": false,
+      "line": {
+        "speakerName": "Clothos",
+        "text": "You removed {subjectType} from {positionName}. That is difficult to justify: procedure, rhythm, and repeatability are exactly the traits this station allows us to call fit.",
+        "live2DTriggerName": "Speak"
+      }
+    },
+    {
+      "id": "object-social-removed-counter",
+      "subjectIds": ["Social"],
+      "subjectTypes": ["Subject-S"],
+      "positions": ["Counter"],
+      "shouldRemain": false,
+      "line": {
+        "speakerName": "Clothos",
+        "text": "You removed {subjectType} from {positionName}. For a customer-facing station, that discards the clearest personality-type fit before it can be properly documented.",
+        "live2DTriggerName": "Speak"
+      }
+    },
+    {
+      "id": "object-inward-removed-floor",
+      "subjectIds": ["Inward"],
+      "subjectTypes": ["Subject-I"],
+      "positions": ["Floor"],
+      "shouldRemain": false,
+      "line": {
+        "speakerName": "Clothos",
+        "text": "You removed {subjectType} from {positionName}. Quiet observation is useful there precisely because it stays out of view, which makes it easier to call efficiency.",
+        "live2DTriggerName": "Speak"
+      }
+    },
+    {
+      "id": "deny-emotional-kept-counter",
+      "subjectIds": ["Emotional"],
+      "subjectTypes": ["Subject-E"],
+      "positions": ["Counter"],
+      "shouldRemain": true,
+      "line": {
+        "speakerName": "Clothos",
+        "text": "You kept {subjectType} on {positionName}. Empathy may look generous, but customer-facing pressure turns visible feeling into a service risk.",
+        "live2DTriggerName": "Speak"
+      }
+    },
+    {
+      "id": "deny-reactive-kept-counter",
+      "subjectIds": ["Reactive"],
+      "subjectTypes": ["Subject-R"],
+      "positions": ["Counter"],
+      "shouldRemain": true,
+      "line": {
+        "speakerName": "Clothos",
+        "text": "You kept {subjectType} on {positionName}. Fast reaction is not the same as public reliability, especially when every surprise happens in front of a customer.",
+        "live2DTriggerName": "Speak"
+      }
+    },
+    {
+      "id": "deny-logical-kept-counter",
+      "subjectIds": ["Logical"],
+      "subjectTypes": ["Subject-L"],
+      "positions": ["Counter"],
+      "shouldRemain": true,
+      "line": {
+        "speakerName": "Clothos",
+        "text": "You kept {subjectType} on {positionName}. Structure can resemble trustworthiness, but Counter requires visible warmth, not merely correct sequencing.",
+        "live2DTriggerName": "Speak"
+      }
+    },
+    {
+      "id": "object-core-removed-any",
+      "subjectIds": ["Core"],
+      "subjectTypes": ["Subject-C"],
+      "positions": [],
+      "shouldRemain": false,
+      "line": {
+        "speakerName": "Clothos",
+        "text": "You removed {subjectType} from {positionName}. Core profiles are administratively useful anywhere; discarding the safest justification creates unnecessary review work.",
+        "live2DTriggerName": "Speak"
+      }
+    },
+    {
+      "id": "object-emotional-removed-floor",
+      "subjectIds": ["Emotional"],
+      "subjectTypes": ["Subject-E"],
+      "positions": ["Floor"],
+      "shouldRemain": false,
+      "line": {
+        "speakerName": "Clothos",
+        "text": "You removed {subjectType} from {positionName}. Reading the room is one of the few emotional traits this station lets us convert into measurable value.",
+        "live2DTriggerName": "Speak"
+      }
+    },
+    {
+      "id": "deny-social-kept-barista",
+      "subjectIds": ["Social"],
+      "subjectTypes": ["Subject-S"],
+      "positions": ["Barista"],
+      "shouldRemain": true,
+      "line": {
+        "speakerName": "Clothos",
+        "text": "You kept {subjectType} on {positionName}. Social confidence is useful in public, but Barista work rewards precision and repeatable rhythm, not performance.",
+        "live2DTriggerName": "Speak"
+      }
+    },
+    {
+      "id": "deny-emotional-kept-barista",
+      "subjectIds": ["Emotional"],
+      "subjectTypes": ["Subject-E"],
+      "positions": ["Barista"],
+      "shouldRemain": true,
+      "line": {
+        "speakerName": "Clothos",
+        "text": "You kept {subjectType} on {positionName}. Empathy notices pressure too personally, while this station requires the workflow to continue while everyone watches.",
+        "live2DTriggerName": "Speak"
+      }
+    }
+  ]
+}

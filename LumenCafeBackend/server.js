@@ -14,8 +14,6 @@ const simulationMaxOutputTokens =
   Number(process.env.CAFE_SIMULATION_MAX_OUTPUT_TOKENS) || 4500;
 const useDebugSimulationResponse =
   process.env.CAFE_DEBUG_SIMULATION_RESPONSE === "true";
-const useDebugRetentionReviewResponse =
-  process.env.CAFE_DEBUG_RETENTION_REVIEW_RESPONSE === "true";
 
 const app = express();
 app.use(cors());
@@ -35,9 +33,9 @@ function loadPromptTemplate() {
   return fs.readFileSync(promptPath, "utf8");
 }
 
-function loadRetentionReviewPromptTemplate() {
-  const promptPath = path.join(__dirname, "prompts", "retention_review_prompt.md");
-  return fs.readFileSync(promptPath, "utf8");
+function loadRetentionReviewConstraints() {
+  const constraintsPath = path.join(__dirname, "data", "retention_review_constraints.json");
+  return JSON.parse(fs.readFileSync(constraintsPath, "utf8"));
 }
 
 function buildAssignmentsText(assignments) {
@@ -233,70 +231,118 @@ function normalizeRetentionSelections(selections) {
   return Array.isArray(selections) ? selections : [];
 }
 
-function formatRetentionSelection(selection, index) {
-  const subject = selection?.subject;
-  const positionName = selection?.positionName || selection?.position || "";
-  const shouldRemain = Boolean(selection?.shouldRemain);
-
-  return [
-    `Selection ${index + 1}`,
-    `Pair Key: ${selection?.pairKey || ""}`,
-    `Position: ${positionName}`,
-    `Slot: ${selection?.slot || ""}`,
-    `Speaker Key: ${selection?.speakerKey || ""}`,
-    `Player Decision: ${shouldRemain ? "KEEP" : "REMOVE"}`,
-    formatSubject(subject),
-  ].join("\n");
+function normalizeRuleValue(value) {
+  return String(value || "").trim().toLowerCase();
 }
 
-function buildRetentionSelectionsText(selections) {
-  const normalizedSelections = normalizeRetentionSelections(selections);
-
-  if (normalizedSelections.length === 0) {
-    return "No retention selections were submitted.";
+function constraintListMatches(list, value) {
+  if (!Array.isArray(list) || list.length === 0) {
+    return true;
   }
 
-  return normalizedSelections
-    .map(formatRetentionSelection)
-    .join("\n\n");
+  const normalizedValue = normalizeRuleValue(value);
+  return list.some((item) => normalizeRuleValue(item) === normalizedValue);
 }
 
-function getSelectedRetentionSubjects(selections, shouldRemain) {
-  return normalizeRetentionSelections(selections)
-    .filter((selection) => Boolean(selection?.shouldRemain) === shouldRemain);
+function getRetentionSelectionPosition(selection) {
+  return selection?.positionName || selection?.position || "";
 }
 
-function buildDebugRetentionReviewResponse(selections) {
-  const keptSelections = getSelectedRetentionSubjects(selections, true);
-  const removedSelections = getSelectedRetentionSubjects(selections, false);
-  const firstKept = keptSelections[0];
-  const firstKeptType = firstKept?.subject?.type || "a mysteriously undocumented subject";
-  const firstKeptPosition = firstKept?.positionName || firstKept?.position || "an undefined position";
+function getRetentionSelectionSubjectType(selection) {
+  return selection?.subject?.type || "";
+}
+
+function getRetentionSelectionSubjectId(selection) {
+  return selection?.subject?.id || "";
+}
+
+function retentionConstraintMatchesSelection(constraint, selection) {
+  if (!selection) {
+    return false;
+  }
+
+  if (
+    Object.prototype.hasOwnProperty.call(constraint, "shouldRemain") &&
+    Boolean(selection.shouldRemain) !== Boolean(constraint.shouldRemain)
+  ) {
+    return false;
+  }
+
+  return (
+    constraintListMatches(constraint.positions, getRetentionSelectionPosition(selection)) &&
+    constraintListMatches(constraint.subjectTypes, getRetentionSelectionSubjectType(selection)) &&
+    constraintListMatches(constraint.subjectIds, getRetentionSelectionSubjectId(selection))
+  );
+}
+
+function getRetentionDecisionText(selection) {
+  return Boolean(selection?.shouldRemain) ? "kept" : "removed";
+}
+
+function formatRetentionLineText(template, selection) {
+  const replacements = {
+    subjectId: getRetentionSelectionSubjectId(selection) || "this subject",
+    subjectType: getRetentionSelectionSubjectType(selection) || "this subject type",
+    positionName: getRetentionSelectionPosition(selection) || "this position",
+    decision: getRetentionDecisionText(selection),
+    speakerKey: selection?.speakerKey || "",
+    pairKey: selection?.pairKey || "",
+  };
+
+  return String(template || "").replace(/\{(\w+)\}/g, (match, key) =>
+    Object.prototype.hasOwnProperty.call(replacements, key)
+      ? replacements[key]
+      : match
+  );
+}
+
+function buildRetentionLineFromConstraint(constraint, selection) {
+  const sourceLine = constraint?.line || {};
 
   return {
-    title: "Retention Review",
-    lines: [
-      {
-        speakerName: "Clothos",
-        text: "Thank you. I have reviewed your retention proposal with the warmth and flexibility expected from Human Resources.",
-        live2DTriggerName: "Speak",
-      },
-      {
-        speakerName: "Clothos",
-        text: `You selected ${keptSelections.length} subject(s) to remain and ${removedSelections.length} subject(s) to quietly become someone else's problem.`,
-        live2DTriggerName: "Speak",
-      },
-      {
-        speakerName: "Clothos",
-        text: `For example, keeping ${firstKeptType} at ${firstKeptPosition} is a decision. Not necessarily a good decision, but certainly one with paperwork attached.`,
-        live2DTriggerName: "Speak",
-      },
-      {
-        speakerName: "Clothos",
-        text: "This is a debug retention review. No OpenAI request was made, so please imagine the institutional bias at full resolution.",
-        live2DTriggerName: "Speak",
-      },
-    ],
+    speakerName: sourceLine.speakerName || "Clothos",
+    text: formatRetentionLineText(sourceLine.text, selection),
+    live2DTriggerName: sourceLine.live2DTriggerName || "Speak",
+  };
+}
+
+function buildRetentionReviewFromConstraints(selections) {
+  const rules = loadRetentionReviewConstraints();
+  const normalizedSelections = normalizeRetentionSelections(selections);
+  const lines = [];
+  const matchedConstraintIds = [];
+
+  for (const constraint of rules.constraints || []) {
+    const matchedSelection = normalizedSelections.find((selection) =>
+      retentionConstraintMatchesSelection(constraint, selection)
+    );
+
+    if (!matchedSelection) {
+      continue;
+    }
+
+    matchedConstraintIds.push(constraint.id || "(unnamed constraint)");
+    lines.push(buildRetentionLineFromConstraint(constraint, matchedSelection));
+  }
+
+  if (lines.length === 0) {
+    lines.push(rules.fallbackLine || {
+      speakerName: "Clothos",
+      text: "Retention review complete. Human Resources finds your simulation acceptably aligned.",
+      live2DTriggerName: "Speak",
+    });
+  } else if (rules.matchedEndingLine) {
+    lines.push(rules.matchedEndingLine);
+  }
+
+  console.log(
+    `[CafeBackend] Retention review constraints evaluated. selections=${normalizedSelections.length}, matches=${matchedConstraintIds.length}` +
+      (matchedConstraintIds.length > 0 ? `, matched=${matchedConstraintIds.join(",")}` : "")
+  );
+
+  return {
+    title: rules.title || "Retention Review",
+    lines,
   };
 }
 
@@ -348,37 +394,10 @@ app.post("/api/simulate", async (req, res) => {
 app.post("/api/retention-review", async (req, res) => {
   try {
     const { selections } = req.body;
-
-    if (useDebugRetentionReviewResponse) {
-      console.log("[CafeBackend] Returning debug retention review response. OpenAI request skipped.");
-      res.json({
-        text: JSON.stringify(buildDebugRetentionReviewResponse(selections), null, 2),
-      });
-      return;
-    }
-
-    const template = loadRetentionReviewPromptTemplate();
-    const selectionsText = buildRetentionSelectionsText(selections);
-    const finalPrompt = template.replace("{{SELECTIONS}}", selectionsText);
-
-    console.log(
-      `[CafeBackend] Sending retention review OpenAI request. model=${openaiModel}, timeoutMs=${openaiTimeoutMs}, promptChars=${finalPrompt.length}`
-    );
-
-    const startedAt = Date.now();
-
-    const response = await openai.responses.create({
-      model: openaiModel,
-      input: finalPrompt,
-      max_output_tokens: 1600,
-    }, {
-      timeout: openaiTimeoutMs,
-    });
-
-    console.log(`[CafeBackend] Retention review response received in ${Date.now() - startedAt}ms`);
+    const review = buildRetentionReviewFromConstraints(selections);
 
     res.json({
-      text: response.output_text,
+      text: JSON.stringify(review, null, 2),
     });
   } catch (error) {
     console.error(error);

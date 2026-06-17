@@ -1,4 +1,6 @@
 using DG.Tweening;
+using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -16,12 +18,10 @@ public class TutorialHighlightController : MonoBehaviour
     [SerializeField] private float pulseScale = 1.02f;
     [SerializeField] private float pulseDuration = 0.45f;
 
-    private Sequence pulseSequence;
     private string activeTargetId;
-    private RectTransform topDimPanel;
-    private RectTransform bottomDimPanel;
-    private RectTransform leftDimPanel;
-    private RectTransform rightDimPanel;
+    private readonly List<ActiveHighlight> activeHighlights = new List<ActiveHighlight>();
+    private readonly List<ActiveHighlight> highlightPool = new List<ActiveHighlight>();
+    private readonly List<RectTransform> dimPanelPool = new List<RectTransform>();
 
     public string ActiveTargetId => activeTargetId;
 
@@ -35,6 +35,9 @@ public class TutorialHighlightController : MonoBehaviour
 
         if (highlightImage == null && highlightFrame != null)
             highlightImage = highlightFrame.GetComponent<Image>();
+
+        if (highlightFrame != null)
+            highlightPool.Add(CreateActiveHighlight(highlightFrame));
 
         EnsureDimPanels();
         HideAllHighlights(true);
@@ -50,24 +53,28 @@ public class TutorialHighlightController : MonoBehaviour
         if (target == null || overlayRoot == null)
             return;
 
-        KillTweens();
         activeTargetId = targetId;
 
         Bounds bounds = RectTransformUtility.CalculateRelativeRectTransformBounds(overlayRoot, target);
         Rect paddedTargetRect = GetPaddedTargetRect(bounds);
-        LayoutDimPanels(paddedTargetRect);
+        ActiveHighlight highlight = GetAvailableHighlightFrame();
 
-        if (highlightFrame != null)
+        if (highlight.Frame != null)
         {
-            highlightFrame.anchorMin = new Vector2(0.5f, 0.5f);
-            highlightFrame.anchorMax = new Vector2(0.5f, 0.5f);
-            highlightFrame.pivot = new Vector2(0.5f, 0.5f);
-            highlightFrame.anchoredPosition = paddedTargetRect.center;
-            highlightFrame.sizeDelta = paddedTargetRect.size;
-            highlightFrame.localScale = Vector3.one;
-            highlightFrame.gameObject.SetActive(true);
-            highlightFrame.SetAsLastSibling();
+            highlight.TargetId = targetId;
+            highlight.TargetRect = paddedTargetRect;
+            highlight.Frame.anchorMin = new Vector2(0.5f, 0.5f);
+            highlight.Frame.anchorMax = new Vector2(0.5f, 0.5f);
+            highlight.Frame.pivot = new Vector2(0.5f, 0.5f);
+            highlight.Frame.anchoredPosition = paddedTargetRect.center;
+            highlight.Frame.sizeDelta = paddedTargetRect.size;
+            highlight.Frame.localScale = Vector3.one;
+            highlight.Frame.gameObject.SetActive(true);
+            highlight.Frame.SetAsLastSibling();
         }
+
+        activeHighlights.Add(highlight);
+        LayoutDimPanels(GetActiveHighlightRects());
 
         float resolvedFadeDuration = duration > 0f ? duration : fadeDuration;
 
@@ -80,19 +87,39 @@ public class TutorialHighlightController : MonoBehaviour
             dimCanvasGroup.DOFade(1f, resolvedFadeDuration);
         }
 
-        if (highlightCanvasGroup != null)
+        if (highlight.CanvasGroup != null)
         {
-            highlightCanvasGroup.alpha = 0f;
-            highlightCanvasGroup.DOFade(1f, resolvedFadeDuration);
+            highlight.CanvasGroup.alpha = 0f;
+            highlight.CanvasGroup.DOFade(1f, resolvedFadeDuration);
         }
 
-        StartPulse();
+        StartPulse(highlight);
     }
 
     public void HideHighlight(string targetId)
     {
-        if (activeTargetId == targetId)
+        bool removedAnyHighlight = false;
+
+        for (int i = activeHighlights.Count - 1; i >= 0; i--)
+        {
+            ActiveHighlight highlight = activeHighlights[i];
+            if (highlight.TargetId != targetId)
+                continue;
+
+            HideActiveHighlight(highlight, false);
+            activeHighlights.RemoveAt(i);
+            removedAnyHighlight = true;
+        }
+
+        if (!removedAnyHighlight)
+            return;
+
+        activeTargetId = activeHighlights.Count > 0 ? activeHighlights[activeHighlights.Count - 1].TargetId : "";
+
+        if (activeHighlights.Count == 0)
             HideAllHighlights(false);
+        else
+            LayoutDimPanels(GetActiveHighlightRects());
     }
 
     public void HideAllHighlights(bool immediate = false)
@@ -100,19 +127,18 @@ public class TutorialHighlightController : MonoBehaviour
         activeTargetId = "";
         KillTweens();
 
-        if (immediate || highlightCanvasGroup == null)
+        foreach (ActiveHighlight highlight in highlightPool)
+            HideActiveHighlight(highlight, immediate);
+
+        activeHighlights.Clear();
+
+        if (immediate)
         {
             if (dimCanvasGroup != null)
                 dimCanvasGroup.alpha = 0f;
 
-            if (highlightCanvasGroup != null)
-                highlightCanvasGroup.alpha = 0f;
-
             if (dimPanelRoot != null)
                 dimPanelRoot.gameObject.SetActive(false);
-
-            if (highlightFrame != null)
-                highlightFrame.gameObject.SetActive(false);
             return;
         }
 
@@ -122,57 +148,40 @@ public class TutorialHighlightController : MonoBehaviour
                 .DOFade(0f, fadeDuration)
                 .OnComplete(() => dimPanelRoot.gameObject.SetActive(false));
         }
-
-        highlightCanvasGroup
-            .DOFade(0f, fadeDuration)
-            .OnComplete(() => highlightFrame.gameObject.SetActive(false));
     }
 
-    private void StartPulse()
+    private void StartPulse(ActiveHighlight highlight)
     {
-        KillPulseSequence();
-
-        if (highlightFrame == null)
+        if (highlight == null || highlight.Frame == null)
             return;
 
-        pulseSequence = DOTween.Sequence();
-        pulseSequence
-            .Append(highlightFrame.DOScale(pulseScale, pulseDuration));
+        if (highlight.PulseSequence != null)
+        {
+            highlight.PulseSequence.Kill();
+            highlight.PulseSequence = null;
+        }
 
-        pulseSequence.Append(highlightFrame.DOScale(1f, pulseDuration));
+        highlight.Frame.DOKill();
+        highlight.Frame.localScale = Vector3.one;
 
-        pulseSequence
+        highlight.PulseSequence = DOTween.Sequence();
+        highlight.PulseSequence
+            .Append(highlight.Frame.DOScale(pulseScale, pulseDuration));
+
+        highlight.PulseSequence.Append(highlight.Frame.DOScale(1f, pulseDuration));
+
+        highlight.PulseSequence
             .SetLoops(-1)
             .SetEase(Ease.InOutSine);
     }
 
     private void KillTweens()
     {
-        KillPulseSequence();
-
-        if (highlightFrame != null)
-        {
-            highlightFrame.DOKill();
-            highlightFrame.localScale = Vector3.one;
-        }
-
-        if (highlightCanvasGroup != null)
-            highlightCanvasGroup.DOKill();
+        foreach (ActiveHighlight highlight in highlightPool)
+            highlight.KillTweens();
 
         if (dimCanvasGroup != null)
             dimCanvasGroup.DOKill();
-
-        if (highlightImage != null)
-            highlightImage.DOKill();
-    }
-
-    private void KillPulseSequence()
-    {
-        if (pulseSequence != null)
-        {
-            pulseSequence.Kill();
-            pulseSequence = null;
-        }
     }
 
     private void EnsureDimPanels()
@@ -194,29 +203,95 @@ public class TutorialHighlightController : MonoBehaviour
         if (dimCanvasGroup == null)
             dimCanvasGroup = dimPanelRoot.GetComponent<CanvasGroup>();
 
-        topDimPanel = EnsureDimPanel("Top Dim Panel", topDimPanel);
-        bottomDimPanel = EnsureDimPanel("Bottom Dim Panel", bottomDimPanel);
-        leftDimPanel = EnsureDimPanel("Left Dim Panel", leftDimPanel);
-        rightDimPanel = EnsureDimPanel("Right Dim Panel", rightDimPanel);
-
         if (highlightFrame != null)
             highlightFrame.SetAsLastSibling();
     }
 
-    private RectTransform EnsureDimPanel(string panelName, RectTransform currentPanel)
+    private ActiveHighlight GetAvailableHighlightFrame()
     {
-        if (currentPanel != null)
-            return currentPanel;
+        foreach (ActiveHighlight highlight in highlightPool)
+        {
+            if (!activeHighlights.Contains(highlight))
+                return highlight;
+        }
 
-        GameObject panel = new GameObject(panelName, typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
-        RectTransform panelRect = panel.GetComponent<RectTransform>();
-        panelRect.SetParent(dimPanelRoot, false);
+        RectTransform sourceFrame = highlightFrame != null
+            ? highlightFrame
+            : activeHighlights.Count > 0 ? activeHighlights[0].Frame : null;
 
-        Image image = panel.GetComponent<Image>();
-        image.color = dimColor;
-        image.raycastTarget = false;
+        if (sourceFrame == null)
+            return new ActiveHighlight();
 
-        return panelRect;
+        RectTransform clonedFrame = Instantiate(sourceFrame, sourceFrame.parent);
+        clonedFrame.name = sourceFrame.name + " (Generated)";
+        ActiveHighlight clonedHighlight = CreateActiveHighlight(clonedFrame);
+        highlightPool.Add(clonedHighlight);
+        return clonedHighlight;
+    }
+
+    private ActiveHighlight CreateActiveHighlight(RectTransform frame)
+    {
+        CanvasGroup canvasGroup = frame.GetComponent<CanvasGroup>();
+        if (canvasGroup == null)
+            canvasGroup = frame.gameObject.AddComponent<CanvasGroup>();
+
+        return new ActiveHighlight
+        {
+            Frame = frame,
+            CanvasGroup = canvasGroup,
+            Image = frame.GetComponent<Image>(),
+        };
+    }
+
+    private void HideActiveHighlight(ActiveHighlight highlight, bool immediate)
+    {
+        if (highlight == null || highlight.Frame == null)
+            return;
+
+        highlight.KillTweens();
+        highlight.TargetId = "";
+        highlight.Frame.localScale = Vector3.one;
+
+        if (immediate || highlight.CanvasGroup == null)
+        {
+            if (highlight.CanvasGroup != null)
+                highlight.CanvasGroup.alpha = 0f;
+
+            highlight.Frame.gameObject.SetActive(false);
+            return;
+        }
+
+        highlight.CanvasGroup
+            .DOFade(0f, fadeDuration)
+            .OnComplete(() => highlight.Frame.gameObject.SetActive(false));
+    }
+
+    private List<Rect> GetActiveHighlightRects()
+    {
+        List<Rect> targetRects = new List<Rect>();
+
+        foreach (ActiveHighlight highlight in activeHighlights)
+            targetRects.Add(highlight.TargetRect);
+
+        return targetRects;
+    }
+
+    private RectTransform EnsureDimPanel(int index)
+    {
+        while (dimPanelPool.Count <= index)
+        {
+            GameObject panel = new GameObject("Generated Dim Panel", typeof(RectTransform), typeof(CanvasRenderer), typeof(Image));
+            RectTransform panelRect = panel.GetComponent<RectTransform>();
+            panelRect.SetParent(dimPanelRoot, false);
+
+            Image image = panel.GetComponent<Image>();
+            image.color = dimColor;
+            image.raycastTarget = false;
+
+            dimPanelPool.Add(panelRect);
+        }
+
+        return dimPanelPool[index];
     }
 
     private Rect GetPaddedTargetRect(Bounds bounds)
@@ -233,16 +308,75 @@ public class TutorialHighlightController : MonoBehaviour
         return Rect.MinMaxRect(targetMin.x, targetMin.y, targetMax.x, targetMax.y);
     }
 
-    private void LayoutDimPanels(Rect targetRect)
+    private void LayoutDimPanels(List<Rect> clearRects)
     {
         EnsureDimPanels();
 
-        Rect rootRect = overlayRoot.rect;
+        if (overlayRoot == null)
+            return;
 
-        SetPanelRect(topDimPanel, rootRect.xMin, targetRect.yMax, rootRect.xMax, rootRect.yMax);
-        SetPanelRect(bottomDimPanel, rootRect.xMin, rootRect.yMin, rootRect.xMax, targetRect.yMin);
-        SetPanelRect(leftDimPanel, rootRect.xMin, targetRect.yMin, targetRect.xMin, targetRect.yMax);
-        SetPanelRect(rightDimPanel, targetRect.xMax, targetRect.yMin, rootRect.xMax, targetRect.yMax);
+        Rect rootRect = overlayRoot.rect;
+        List<float> xEdges = new List<float> { rootRect.xMin, rootRect.xMax };
+        List<float> yEdges = new List<float> { rootRect.yMin, rootRect.yMax };
+
+        if (clearRects != null)
+        {
+            foreach (Rect clearRect in clearRects)
+            {
+                xEdges.Add(Mathf.Clamp(clearRect.xMin, rootRect.xMin, rootRect.xMax));
+                xEdges.Add(Mathf.Clamp(clearRect.xMax, rootRect.xMin, rootRect.xMax));
+                yEdges.Add(Mathf.Clamp(clearRect.yMin, rootRect.yMin, rootRect.yMax));
+                yEdges.Add(Mathf.Clamp(clearRect.yMax, rootRect.yMin, rootRect.yMax));
+            }
+        }
+
+        xEdges.Sort();
+        yEdges.Sort();
+
+        int usedPanelCount = 0;
+
+        for (int xIndex = 0; xIndex < xEdges.Count - 1; xIndex++)
+        {
+            float xMin = xEdges[xIndex];
+            float xMax = xEdges[xIndex + 1];
+
+            if (Mathf.Approximately(xMin, xMax))
+                continue;
+
+            for (int yIndex = 0; yIndex < yEdges.Count - 1; yIndex++)
+            {
+                float yMin = yEdges[yIndex];
+                float yMax = yEdges[yIndex + 1];
+
+                if (Mathf.Approximately(yMin, yMax))
+                    continue;
+
+                Vector2 center = new Vector2((xMin + xMax) * 0.5f, (yMin + yMax) * 0.5f);
+                if (IsInsideAnyRect(center, clearRects))
+                    continue;
+
+                RectTransform panel = EnsureDimPanel(usedPanelCount);
+                SetPanelRect(panel, xMin, yMin, xMax, yMax);
+                usedPanelCount++;
+            }
+        }
+
+        for (int i = usedPanelCount; i < dimPanelPool.Count; i++)
+            dimPanelPool[i].gameObject.SetActive(false);
+    }
+
+    private bool IsInsideAnyRect(Vector2 point, List<Rect> rects)
+    {
+        if (rects == null)
+            return false;
+
+        foreach (Rect rect in rects)
+        {
+            if (rect.Contains(point))
+                return true;
+        }
+
+        return false;
     }
 
     private void SetPanelRect(RectTransform panel, float xMin, float yMin, float xMax, float yMax)
@@ -259,5 +393,37 @@ public class TutorialHighlightController : MonoBehaviour
         panel.pivot = new Vector2(0.5f, 0.5f);
         panel.anchoredPosition = new Vector2((xMin + xMax) * 0.5f, (yMin + yMax) * 0.5f);
         panel.sizeDelta = new Vector2(width, height);
+    }
+
+    [Serializable]
+    private class ActiveHighlight
+    {
+        public string TargetId;
+        public RectTransform Frame;
+        public CanvasGroup CanvasGroup;
+        public Image Image;
+        public Rect TargetRect;
+        public Sequence PulseSequence;
+
+        public void KillTweens()
+        {
+            if (PulseSequence != null)
+            {
+                PulseSequence.Kill();
+                PulseSequence = null;
+            }
+
+            if (Frame != null)
+            {
+                Frame.DOKill();
+                Frame.localScale = Vector3.one;
+            }
+
+            if (CanvasGroup != null)
+                CanvasGroup.DOKill();
+
+            if (Image != null)
+                Image.DOKill();
+        }
     }
 }

@@ -10,7 +10,7 @@ public class ConversationTutorialMiddleware : MonoBehaviour
     [SerializeField] private List<TutorialCoroutineEntry> coroutineEntries = new List<TutorialCoroutineEntry>();
     [SerializeField] private UnityEvent<string> actionSignalSent = new UnityEvent<string>();
 
-    private readonly Dictionary<string, TutorialTarget> targetLookup = new Dictionary<string, TutorialTarget>();
+    private readonly Dictionary<string, List<TutorialTarget>> targetLookup = new Dictionary<string, List<TutorialTarget>>();
 
     private void Awake()
     {
@@ -50,11 +50,13 @@ public class ConversationTutorialMiddleware : MonoBehaviour
         if (actions == null)
             return;
 
+        bool clearedHighlightsForLine = false;
+
         foreach (ConversationLineAction action in actions)
-            RunAction(action);
+            RunAction(action, ref clearedHighlightsForLine);
     }
 
-    private void RunAction(ConversationLineAction action)
+    private void RunAction(ConversationLineAction action, ref bool clearedHighlightsForLine)
     {
         if (action == null)
             return;
@@ -62,7 +64,7 @@ public class ConversationTutorialMiddleware : MonoBehaviour
         switch (action.actionType)
         {
             case ConversationLineActionType.ShowHighlight:
-                ShowHighlight(action);
+                ShowHighlight(action, ref clearedHighlightsForLine);
                 break;
 
             case ConversationLineActionType.HideHighlight:
@@ -83,21 +85,35 @@ public class ConversationTutorialMiddleware : MonoBehaviour
         }
     }
 
-    private void ShowHighlight(ConversationLineAction action)
+    private void ShowHighlight(ConversationLineAction action, ref bool clearedHighlightsForLine)
     {
         if (highlightController == null)
             return;
 
-        if (action.clearPreviousHighlights)
+        if (action.clearPreviousHighlights && !clearedHighlightsForLine)
+        {
             highlightController.HideAllHighlights(true);
+            clearedHighlightsForLine = true;
+        }
 
-        if (!targetLookup.TryGetValue(action.targetId, out TutorialTarget target) || target.RectTransform == null)
+        if (!targetLookup.TryGetValue(action.targetId, out List<TutorialTarget> targets) || targets.Count == 0)
         {
             Debug.LogWarning("Tutorial target was not found: " + action.targetId, this);
             return;
         }
 
-        highlightController.ShowHighlight(action.targetId, target.RectTransform, action.duration);
+        bool highlightedAnyTarget = false;
+        foreach (TutorialTarget target in targets)
+        {
+            if (target == null || target.RectTransform == null)
+                continue;
+
+            highlightController.ShowHighlight(action.targetId, target.RectTransform, action.duration);
+            highlightedAnyTarget = true;
+        }
+
+        if (!highlightedAnyTarget)
+            Debug.LogWarning("Tutorial target has no RectTransform: " + action.targetId, this);
     }
 
     private void HideHighlight(ConversationLineAction action)
@@ -140,7 +156,14 @@ public class ConversationTutorialMiddleware : MonoBehaviour
         if (target == null || string.IsNullOrWhiteSpace(target.TargetId))
             return;
 
-        targetLookup[target.TargetId] = target;
+        if (!targetLookup.TryGetValue(target.TargetId, out List<TutorialTarget> targets))
+        {
+            targets = new List<TutorialTarget>();
+            targetLookup[target.TargetId] = targets;
+        }
+
+        if (!targets.Contains(target))
+            targets.Add(target);
     }
 }
 

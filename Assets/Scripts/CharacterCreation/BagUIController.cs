@@ -71,6 +71,7 @@ public class BagUIController : MonoBehaviour
     [Header("Tutorial Signals")]
     [SerializeField] private ConversationCutsceneController cutsceneController;
     [SerializeField] private string openBagSignalId = "bag_triggered";
+    [SerializeField] private string firstAssignmentSignalId = "cafe_assignment_made";
 
     private Dictionary<string, Sprite> spriteLookup = new Dictionary<string, Sprite>();
     private Dictionary<string, Sprite> assignmentWorldSpriteLookup = new Dictionary<string, Sprite>();
@@ -85,9 +86,13 @@ public class BagUIController : MonoBehaviour
     private int currentDisplayIndex = -1;
     private int currentCatalogPreviewIndex = -1;
     private bool hasSentOpenBagSignal;
+    private bool hasSentFirstAssignmentSignal;
 
     private void Awake()
     {
+        if (cutsceneController == null)
+            cutsceneController = FindFirstObjectByType<ConversationCutsceneController>();
+
         BuildSpriteLookup();
         BuildAssignmentWorldSpriteLookup();
 
@@ -743,6 +748,12 @@ public class BagUIController : MonoBehaviour
 
         RefreshCafeSlots();
         RefreshAssignmentWorldObjects();
+
+        TutorialSignalUtility.SendTutorialSignalOnce(
+            cutsceneController,
+            firstAssignmentSignalId,
+            ref hasSentFirstAssignmentSignal
+        );
     }
 
     public void ReturnInventoryIndexFromAssignment(int inventoryIndex)
