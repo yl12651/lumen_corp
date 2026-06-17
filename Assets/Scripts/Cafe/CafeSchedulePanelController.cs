@@ -5,12 +5,12 @@ public class CafeSchedulePanelController : MonoBehaviour
     [SerializeField] private GameObject schedulePanelRoot;
     [SerializeField] private bool hideOnAwake = true;
     [SerializeField] private BagUIController bagUIController;
-    [SerializeField] private CafeScheduleFolderAnimator folderAnimator;
+    [SerializeField] private CafeScheduleIntroAnimator introAnimator;
 
     private void Awake()
     {
-        if (folderAnimator == null && schedulePanelRoot != null)
-            folderAnimator = schedulePanelRoot.GetComponentInChildren<CafeScheduleFolderAnimator>(true);
+        if (introAnimator == null && schedulePanelRoot != null)
+            introAnimator = schedulePanelRoot.GetComponentInChildren<CafeScheduleIntroAnimator>(true);
 
         if (hideOnAwake)
             SetVisible(false);
@@ -39,7 +39,7 @@ public class CafeSchedulePanelController : MonoBehaviour
         if (visible && bagUIController != null)
             bagUIController.RefreshAll();
 
-        if (visible && folderAnimator != null)
-            folderAnimator.PlayOpenAnimation();
+        if (visible && introAnimator != null)
+            introAnimator.HandleScheduleOpened();
     }
 }
