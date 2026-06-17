@@ -31,7 +31,7 @@ MonoBehaviour:
     live2DTriggerName: 
     advanceMode: 1
     requiredSignalId: read_bar
-    hideCanvasWhileWaitingForSignal: 0
+    hideCanvasWhileWaitingForSignal: 1
     startActions: []
     endActions: []
   - speakerName: Clothos
@@ -40,7 +40,7 @@ MonoBehaviour:
     live2DTriggerName: 
     advanceMode: 1
     requiredSignalId: read_floor
-    hideCanvasWhileWaitingForSignal: 0
+    hideCanvasWhileWaitingForSignal: 1
     startActions: []
     endActions: []
   - speakerName: Clothos

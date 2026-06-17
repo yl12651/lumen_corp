@@ -14701,17 +14701,17 @@ MonoBehaviour:
   descriptionText: {fileID: 1428321626}
   resultUIPanel: {fileID: 1871442849}
   characterSprites:
-  - id: Cor
+  - id: Core
     sprite: {fileID: 21300000, guid: 7457c502a8eb5d84cb88a8cde7ffc1ef, type: 3}
-  - id: Emo
+  - id: Emotional
     sprite: {fileID: 21300000, guid: a9cdeef9deaf0b54087af0baea694d37, type: 3}
-  - id: Inw
+  - id: Inward
     sprite: {fileID: 21300000, guid: 36d9d16494917f94eb51db2c26bd0e37, type: 3}
-  - id: Log
+  - id: Logical
     sprite: {fileID: 21300000, guid: 6f089dd1c8b142148a103d991e13f19a, type: 3}
-  - id: Rep
+  - id: Reactive
     sprite: {fileID: 21300000, guid: 8c2f5c7d9a674cc4c947b0bb6bd59bd2, type: 3}
-  - id: Soc
+  - id: Social
     sprite: {fileID: 21300000, guid: 3ddad039cb4e6e44d96a8093511cc890, type: 3}
   cutsceneController: {fileID: 508874421}
   createSignalId: create_triggered
@@ -39995,42 +39995,42 @@ MonoBehaviour:
   removeButton: {fileID: 1519928266518296766}
   lockedCatalogSprite: {fileID: 21300000, guid: 96ab2a372af6d8e40b74e4046a5422a5, type: 3}
   catalogCharacters:
-  - id: Cor
+  - id: Core
     displayName: Subject-C
     lockedHint: Aim for balance with low instability and higher humility/discipline.
       Not extreme, but steady and well-regulated.
-  - id: Emo
+  - id: Emotional
     displayName: Subject-E
     lockedHint: Push empathy and instability very high. Keep the rest moderate, as
       if emotion overwhelms control.
-  - id: Inw
+  - id: Inward
     displayName: Subject-I
     lockedHint: Lower drive, keep discipline and humility higher, and avoid extremes
       elsewhere. Quiet stability with little outward push.
-  - id: Log
+  - id: Logical
     displayName: Subject-L
     lockedHint: Max discipline, raise curiosity, and keep instability very low. Calm,
       ordered, analytical traits are the key.
-  - id: Rep
+  - id: Reactive
     displayName: Subject-R
     lockedHint: Favor high drive and instability, with very low discipline, empathy,
       and humility. This one comes from impulse over restraint.
-  - id: Soc
+  - id: Social
     displayName: Subject-S
     lockedHint: Raise drive and empathy, keep instability low. A socially active
       setup with strong outward energy points here.
   characterSprites:
-  - id: Cor
+  - id: Core
     sprite: {fileID: 21300000, guid: 7457c502a8eb5d84cb88a8cde7ffc1ef, type: 3}
-  - id: Emo
+  - id: Emotional
     sprite: {fileID: 21300000, guid: a9cdeef9deaf0b54087af0baea694d37, type: 3}
-  - id: Inw
+  - id: Inward
     sprite: {fileID: 21300000, guid: 36d9d16494917f94eb51db2c26bd0e37, type: 3}
-  - id: Log
+  - id: Logical
     sprite: {fileID: 21300000, guid: 6f089dd1c8b142148a103d991e13f19a, type: 3}
-  - id: Rep
+  - id: Reactive
     sprite: {fileID: 21300000, guid: 8c2f5c7d9a674cc4c947b0bb6bd59bd2, type: 3}
-  - id: Soc
+  - id: Social
     sprite: {fileID: 21300000, guid: 3ddad039cb4e6e44d96a8093511cc890, type: 3}
   assignmentWorldSprites: []
   assignmentWorldObjects: []

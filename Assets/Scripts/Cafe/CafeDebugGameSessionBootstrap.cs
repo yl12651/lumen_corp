@@ -11,7 +11,7 @@ public class CafeDebugGameSessionBootstrap : MonoBehaviour
     {
         new CharacterDefinition
         {
-            id = "Emo",
+            id = "Emotional",
             type = "Subject-E",
             description = "The Emotional type.\nHigh emotional sensitivity, strong empathy feedback loop; reacts swiftly to group mood swings; used to monitor collective emotional waves.",
             traitRatings = new TraitRatings
@@ -27,9 +27,9 @@ public class CafeDebugGameSessionBootstrap : MonoBehaviour
 
         new CharacterDefinition
         {
-            id = "Rep",
+            id = "Reactive",
             type = "Subject-R",
-            description = "The Repulsive type.\nLow impulse-control threshold; quick to act under stress; designed for crisis-response simulations; reveals how sudden decisions affect controlled environments.",
+            description = "The Reactive type.\nLow impulse-control threshold; quick to act under stress; designed for crisis-response simulations; reveals how sudden decisions affect controlled environments.",
             traitRatings = new TraitRatings
             {
                 curiosity = 3.0f,
@@ -43,7 +43,7 @@ public class CafeDebugGameSessionBootstrap : MonoBehaviour
 
         new CharacterDefinition
         {
-            id = "Soc",
+            id = "Social",
             type = "Subject-S",
             description = "The Social type.\nHighly extroverted and persuasive; excels at networking and influence; key to studying opinion spread, crowd dynamics, and viral communication.",
             traitRatings = new TraitRatings
@@ -59,7 +59,7 @@ public class CafeDebugGameSessionBootstrap : MonoBehaviour
 
         new CharacterDefinition
         {
-            id = "Log",
+            id = "Logical",
             type = "Subject-L",
             description = "The Logical type.\nPredominantly rational and composed; excels at structured decision-making and calculations; serves as a stabilizing baseline in behavioral experiments.",
             traitRatings = new TraitRatings
@@ -75,7 +75,7 @@ public class CafeDebugGameSessionBootstrap : MonoBehaviour
 
         new CharacterDefinition
         {
-            id = "Inw",
+            id = "Inward",
             type = "Subject-I",
             description = "The Inward type.\nLow external energy and visibility; blends into background populations; useful for studying observer bias and unnoticed anomaly detection in simulations.",
             traitRatings = new TraitRatings
@@ -91,7 +91,7 @@ public class CafeDebugGameSessionBootstrap : MonoBehaviour
 
         new CharacterDefinition
         {
-            id = "Cor",
+            id = "Core",
             type = "Subject-C",
             description = "The Core type.\nHigh and stable life-energy baseline; balanced across emotional, reactive, and social traits; represents the laboratory's ideal equilibrium model for sustaining the controlled world.",
             traitRatings = new TraitRatings
@@ -107,7 +107,7 @@ public class CafeDebugGameSessionBootstrap : MonoBehaviour
 
         new CharacterDefinition
         {
-            id = "Soc",
+            id = "Social",
             type = "Subject-S",
             description = "The Social type.\nHighly extroverted and persuasive; excels at networking and influence; key to studying opinion spread, crowd dynamics, and viral communication.",
             traitRatings = new TraitRatings
@@ -123,9 +123,9 @@ public class CafeDebugGameSessionBootstrap : MonoBehaviour
 
         new CharacterDefinition
         {
-            id = "Rep",
+            id = "Reactive",
             type = "Subject-R",
-            description = "The Repulsive type.\nLow impulse-control threshold; quick to act under stress; designed for crisis-response simulations; reveals how sudden decisions affect controlled environments.",
+            description = "The Reactive type.\nLow impulse-control threshold; quick to act under stress; designed for crisis-response simulations; reveals how sudden decisions affect controlled environments.",
             traitRatings = new TraitRatings
             {
                 curiosity = 4.0f,

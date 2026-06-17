@@ -49,12 +49,12 @@ public class BagUIController : MonoBehaviour
     [SerializeField] private Sprite lockedCatalogSprite;
     [SerializeField] private List<BagCatalogEntry> catalogCharacters = new List<BagCatalogEntry>
     {
-        new BagCatalogEntry { id = "Cor", displayName = "Subject-C" },
-        new BagCatalogEntry { id = "Emo", displayName = "Subject-E" },
-        new BagCatalogEntry { id = "Inw", displayName = "Subject-I" },
-        new BagCatalogEntry { id = "Log", displayName = "Subject-L" },
-        new BagCatalogEntry { id = "Rep", displayName = "Subject-R" },
-        new BagCatalogEntry { id = "Soc", displayName = "Subject-S" }
+        new BagCatalogEntry { id = "Core", displayName = "Subject-C" },
+        new BagCatalogEntry { id = "Emotional", displayName = "Subject-E" },
+        new BagCatalogEntry { id = "Inward", displayName = "Subject-I" },
+        new BagCatalogEntry { id = "Logical", displayName = "Subject-L" },
+        new BagCatalogEntry { id = "Reactive", displayName = "Subject-R" },
+        new BagCatalogEntry { id = "Social", displayName = "Subject-S" }
     };
 
     [Header("Sprite Mapping")]
