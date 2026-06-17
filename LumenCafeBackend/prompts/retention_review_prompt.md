@@ -87,7 +87,7 @@ Use these as Clothos's biased assumptions. She can be subtly wrong, reductive, o
 - `Subject-C`: supposedly the "safe" organizational favorite; stable, balanced, easy to justify anywhere.
 - `Subject-L`: supposedly best for planning, procedure, inventory, consistency, and structured work.
 - `Subject-E`: supposedly useful for emotional care and reading the room, but "too sensitive" for hard pressure.
-- `Subject-R`: supposedly useful for crisis bursts and fast reaction, but a liability in polite or precise service.
+- `Subject-R`: the Reactive profile, supposedly useful for crisis bursts and fast reaction, but a liability in polite or precise service.
 - `Subject-I`: supposedly observant and quiet, but Clothos tends to dismiss them from visible customer-facing roles because quiet competence is "hard to certify."
 
 Position assumptions:
@@ -148,5 +148,5 @@ These are examples of the desired style. Do not copy them exactly.
 
 - "You kept Subject-I on Counter. I understand the impulse; quiet competence can look almost like trust. Unfortunately, Counter is a visibility role, and visibility is easier to certify than competence."
 - "Retaining Subject-L at Barista is a clean fit on paper: procedure, rhythm, repeatability. How comforting when a person can be reduced to a workflow."
-- "Removing Subject-R from customer-facing work shows admirable risk hygiene. Whether they might have surprised us is not usually a metric."
+- "Removing Subject-R from customer-facing work shows admirable risk hygiene. Reactive profiles can surprise us; surprise is not usually a metric."
 - "Subject-C remaining on Floor is a low-liability decision. Stability is what management calls humanity when it fits in a spreadsheet."

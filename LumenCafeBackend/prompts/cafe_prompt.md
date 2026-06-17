@@ -50,7 +50,7 @@ The submitted data is authoritative. Only use the subjects that actually exist i
 The project uses recurring subject types. The exact descriptions in the input data should be treated as authoritative, but these general meanings may help interpretation:
 
 - `Subject-E`: emotionally sensitive; responsive to group mood; strong empathy feedback loop
-- `Subject-R`: reactive, impulsive, fast under stress; may escalate or disrupt controlled situations
+- `Subject-R`: Reactive; impulsive and fast under stress; may escalate or disrupt controlled situations
 - `Subject-S`: social, persuasive, extroverted; influences mood, opinion, and group energy
 - `Subject-L`: logical, composed, structured; stabilizes through planning and rational judgment
 - `Subject-I`: inward, quiet, low-visibility; observes, withdraws, or notices what others miss
