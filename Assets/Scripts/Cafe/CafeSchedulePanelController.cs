@@ -59,11 +59,11 @@ public class CafeSchedulePanelController : MonoBehaviour
             );
         }
 
-        if (visible && bagUIController != null)
-            bagUIController.RefreshAll();
-
         if (visible && introAnimator != null)
             introAnimator.HandleScheduleOpened();
+
+        if (visible && bagUIController != null)
+            bagUIController.RefreshAll();
 
         if (!visible && wasVisible && hasOpenedSchedule)
         {

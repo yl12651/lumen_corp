@@ -298,7 +298,15 @@ public class CafeScheduleIntroAnimator : MonoBehaviour
             return 1f;
 
         if (defaultGraphicAlphas.TryGetValue(graphic, out float alpha))
+        {
+            if (alpha <= 0f && graphic.color.a > 0f)
+            {
+                alpha = graphic.color.a;
+                defaultGraphicAlphas[graphic] = alpha;
+            }
+
             return alpha;
+        }
 
         defaultGraphicAlphas.Add(graphic, graphic.color.a);
         return graphic.color.a;
